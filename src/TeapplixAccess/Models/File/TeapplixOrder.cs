@@ -49,7 +49,7 @@ namespace TeapplixAccess.Models.File
 
 		public string Fee;
 
-		public string ShipDate;
+		public DateTime? ShipDate;
 
 		public string Carrier;
 
@@ -65,7 +65,7 @@ namespace TeapplixAccess.Models.File
 
 		public bool IsShipped
 		{
-			get { return !string.IsNullOrWhiteSpace( this.Tracking ); }
+			get { return ShipDate.HasValue; }
 		}
 
 		public bool Equals( TeapplixOrder other )

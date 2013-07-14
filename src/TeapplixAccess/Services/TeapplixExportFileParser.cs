@@ -24,7 +24,7 @@ namespace TeapplixAccess.Services
 							AccountId = row[ 1 ].Value,
 							TnxId = row[ 2 ].Value,
 							TnxId2 = row[ 3 ].Value,
-							Date = DateTime.Parse( row[ 4 ].Value,CultureInfo.InvariantCulture ),
+							Date = DateTime.Parse( row[ 4 ].Value, CultureInfo.InvariantCulture ),
 							PaymentType = row[ 5 ].Value,
 							PaymentAuthInfo = row[ 6 ].Value,
 							FirstName = row[ 7 ].Value,
@@ -42,13 +42,16 @@ namespace TeapplixAccess.Services
 							Tax = row[ 19 ].Value,
 							Discount = row[ 20 ].Value,
 							Fee = row[ 21 ].Value,
-							ShipDate = row[ 22 ].Value,
 							Carrier = row[ 23 ].Value,
 							Class = row[ 24 ].Value,
 							Tracking = row[ 25 ].Value,
 							Postage = row[ 26 ].Value,
 							ItemsCount = int.Parse( row[ 27 ].Value )
 						};
+
+					DateTime shipDate;
+					if( DateTime.TryParse( row[ 22 ].Value, out shipDate ) )
+						order.ShipDate = shipDate;
 
 					var items = new List< TeapplixItem >();
 					for( var i = 0; i < order.ItemsCount; i++ )

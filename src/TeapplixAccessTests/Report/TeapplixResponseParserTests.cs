@@ -44,6 +44,9 @@ namespace TeapplixAccessTests.Report
 
 			orders[ 0 ].Items[ 0 ].Descrption.Should().Be( "Conair Hot Air Curling Combo, 1.5 Inch" );
 			orders[ 1 ].Items[ 0 ].Descrption.Should().Be( "Conair HJ3BC Quick Gems Hair Jeweler" );
+
+			orders[ 0 ].IsShipped.Should().BeTrue();
+			orders[ 1 ].IsShipped.Should().BeFalse();
 		}
 
 		[ Test ]
