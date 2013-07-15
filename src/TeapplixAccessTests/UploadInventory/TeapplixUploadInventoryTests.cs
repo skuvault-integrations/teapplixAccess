@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using FluentAssertions;
 using LINQtoCSV;
 using NUnit.Framework;
@@ -80,7 +81,6 @@ namespace TeapplixAccessTests.UploadInventory
 		[ Test ]
 		public void GetOrders_Update_Then_Upload_Info()
 		{
-			var config = new TeapplixUploadConfig( TeapplixUploadSubactionEnum.Inventory, false, false );
 			var service = this.TeapplixFactory.CreateService( new TeapplixCredentials( this.Credentials.AccountName, this.Credentials.Login, this.Credentials.Password ) );
 			var report = service.GetCustomerReportAsync( new TeapplixReportConfig( TeapplixReportSubaction.CustomerRunReport, new DateTime( 2010, 1, 22 ), new DateTime( 2010, 1, 25 ),
 				new DateTime( 2010, 1, 22 ), new DateTime( 2010, 1, 25 ) ) ).Result.ToList();
@@ -94,29 +94,28 @@ namespace TeapplixAccessTests.UploadInventory
 							PostDate = report[ 0 ].Date.ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ),
 							PostType = TeapplixUploadQuantityPostType.Credit.PostType,
 							Quantity = report[ 0 ].Items.First().Quantity.ToString( CultureInfo.InvariantCulture ),
-							SKU = "testsku11",
+							SKU = "testsku1",
 							Total = report[ 0 ].Total.ToString( CultureInfo.InvariantCulture )
 						}
 				};
 
 			var context = new CsvContext();
-			var outputFileDescription = new CsvFileDescription
+			var fileDescription = new CsvFileDescription
 				{
 					SeparatorChar = ',',
 					FirstLineHasColumnNames = true,
 				};
 
-			var filePath = Path.Combine( Directory.GetCurrentDirectory(), "upload.csv" );
-			context.Write( teapplixUploadItems, filePath, outputFileDescription );
-
-			using( var file = File.OpenRead( filePath ) )
+			using( var writer = new StringWriter() )
 			{
-				var result = service.InventoryUpload( config, file ).ToList();
+				context.Write( teapplixUploadItems, writer, fileDescription );
+				var memStream = new MemoryStream( Encoding.UTF8.GetBytes( writer.ToString() ) );
+				var result = service.InventoryUploadAsync( new TeapplixUploadConfig( TeapplixUploadSubactionEnum.Inventory, false, false ), memStream ).Result.ToList();
+
 				result[ 0 ].Status.Should().Be( InventoryUploadStatusEnum.Success );
 				result[ 0 ].Sku.Should().Be( this.UploadData[ 0 ].SKU );
 			}
 
-			File.Delete( filePath );
 		}
 	}
 }
