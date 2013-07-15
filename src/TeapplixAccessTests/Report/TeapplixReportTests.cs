@@ -30,7 +30,7 @@ namespace TeapplixAccessTests.Report
 			var report = service.GetCustomerReport( new TeapplixReportConfig( TeapplixReportSubaction.CustomerRunReport, new DateTime( 2010, 1, 22 ), new DateTime( 2010, 1, 25 ),
 				new DateTime( 2010, 1, 22 ), new DateTime( 2010, 1, 25 ) ) );
 
-			report.ToList()[ 0 ].TnxId.Should().Be( "51940626" );
+			report.ToList()[ 0 ].TnxId.Should().Be( "51953672" );
 		}
 
 		[ Test ]
@@ -40,7 +40,7 @@ namespace TeapplixAccessTests.Report
 			var report = service.GetCustomerReportAsync( new TeapplixReportConfig( TeapplixReportSubaction.CustomerRunReport, new DateTime( 2010, 1, 22 ), new DateTime( 2010, 1, 25 ),
 				new DateTime( 2010, 1, 22 ), new DateTime( 2010, 1, 25 ) ) );
 
-			report.Result.ToList()[ 0 ].TnxId.Should().Be( "51940626" );
+			report.Result.ToList()[ 0 ].TnxId.Should().Be( "51953672" );
 		}
 	}
 }

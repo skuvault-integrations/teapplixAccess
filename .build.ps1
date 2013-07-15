@@ -98,7 +98,7 @@ task NuGet Package, Version, {
 <package>
 	<metadata>
 		<id>TeapplixAccess</id>
-		<version>$Version-alpha2</version>
+		<version>$Version-alpha3</version>
 		<authors>Slav Ivanyuk</authors>
 		<owners>Slav Ivanyuk</owners>
 		<projectUrl>https://github.com/slav/TeapplixAccess</projectUrl>

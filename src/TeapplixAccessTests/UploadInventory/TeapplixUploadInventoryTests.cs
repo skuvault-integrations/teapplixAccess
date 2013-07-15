@@ -106,16 +106,18 @@ namespace TeapplixAccessTests.UploadInventory
 					FirstLineHasColumnNames = true,
 				};
 
-			using( var writer = new StringWriter() )
+			
+			using( var ms = new MemoryStream() )
+			using( var writer = new StreamWriter( ms, Encoding.UTF8 ) )
 			{
 				context.Write( teapplixUploadItems, writer, fileDescription );
-				var memStream = new MemoryStream( Encoding.UTF8.GetBytes( writer.ToString() ) );
-				var result = service.InventoryUploadAsync( new TeapplixUploadConfig( TeapplixUploadSubactionEnum.Inventory, false, false ), memStream ).Result.ToList();
+				writer.Flush();
+				ms.Position = 0;
+				var result = service.InventoryUploadAsync( new TeapplixUploadConfig( TeapplixUploadSubactionEnum.Inventory, false, false ), ms ).Result.ToList();
 
 				result[ 0 ].Status.Should().Be( InventoryUploadStatusEnum.Success );
-				result[ 0 ].Sku.Should().Be( this.UploadData[ 0 ].SKU );
+				result[ 0 ].Sku.Should().Be( teapplixUploadItems[ 0 ].SKU );
 			}
-
 		}
 	}
 }
