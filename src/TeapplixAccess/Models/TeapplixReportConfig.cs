@@ -52,10 +52,10 @@ namespace TeapplixAccess.Models
 		{
 			var result = string.Empty;
 
-			if( this.PaidOrdersStartUtc.HasValue )
+			if( this.PaidOrdersStartUtc.HasValue && this.PaidOrdersEndUtc.HasValue )
 				result += string.Concat( "&start_date=", this.PaidOrdersStartUtc.Value.ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ), "&end_date=", this.PaidOrdersEndUtc.Value.ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ) );
-			if( this.ShippedOrdersStartUtc.HasValue )
-				result += string.Concat( "&start_date=", this.ShippedOrdersStartUtc.Value.ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ), "&end_date=", this.ShippedOrdersEndUtc.Value.ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ) );
+			if( this.ShippedOrdersStartUtc.HasValue && this.ShippedOrdersEndUtc.HasValue )
+				result += string.Concat( "&ship_date_s=", this.ShippedOrdersStartUtc.Value.ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ), "&ship_date_e=", this.ShippedOrdersEndUtc.Value.ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ) );
 
 			return result;
 		}
