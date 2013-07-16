@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 [ assembly : AssemblyProduct( "TeapplixAccess" ) ]
 [ assembly : AssemblyCompany( "Agile Harbor, LLC" ) ]
 [ assembly : AssemblyCopyright( "Copyright (C) 2013 Agile Harbor, LLC" ) ]
-[ assembly: AssemblyDescription( "Teapplix webservices API wrapper." ) ]
+[ assembly : AssemblyDescription( "Teapplix webservices API wrapper." ) ]
 [ assembly : AssemblyTrademark( "" ) ]
 [ assembly : AssemblyCulture( "" ) ]
 [ assembly : CLSCompliant( false ) ]
@@ -23,4 +23,5 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 
 // Keep in track with CA API version
+
 [ assembly : AssemblyVersion( "1.0.0.0" ) ]
