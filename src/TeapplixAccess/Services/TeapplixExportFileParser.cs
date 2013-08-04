@@ -18,36 +18,40 @@ namespace TeapplixAccess.Services
 			{
 				foreach( var row in cc.Read< TeapplixRawDataRow >( reader, new CsvFileDescription { FirstLineHasColumnNames = true } ) )
 				{
-					var order = new TeapplixOrder
-						{
-							OrderSource = row[ 0 ].Value,
-							AccountId = row[ 1 ].Value,
-							TnxId = row[ 2 ].Value,
-							TnxId2 = row[ 3 ].Value,
-							Date = DateTime.Parse( row[ 4 ].Value, CultureInfo.InvariantCulture ),
-							PaymentType = row[ 5 ].Value,
-							PaymentAuthInfo = row[ 6 ].Value,
-							FirstName = row[ 7 ].Value,
-							LastName = row[ 8 ].Value,
-							Email = row[ 9 ].Value,
-							Phone = row[ 10 ].Value,
-							Country = row[ 11 ].Value,
-							State = row[ 12 ].Value,
-							AddressZip = row[ 13 ].Value,
-							City = row[ 14 ].Value,
-							Address1 = row[ 15 ].Value,
-							Address2 = row[ 16 ].Value,
-							Total = decimal.Parse( row[ 17 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture ),
-							Shipping = decimal.Parse( row[ 18 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture ),
-							Tax = row[ 19 ].Value,
-							Discount = row[ 20 ].Value,
-							Fee = row[ 21 ].Value,
-							Carrier = row[ 23 ].Value,
-							Class = row[ 24 ].Value,
-							Tracking = row[ 25 ].Value,
-							Postage = row[ 26 ].Value,
-							ItemsCount = int.Parse( row[ 27 ].Value )
-						};
+					var order = new TeapplixOrder();
+
+					order.OrderSource = row[ 0 ].Value;
+					order.AccountId = row[ 1 ].Value;
+					order.TnxId = row[ 2 ].Value;
+					order.TnxId2 = row[ 3 ].Value;
+					order.Date = DateTime.Parse( row[ 4 ].Value, CultureInfo.InvariantCulture );
+					order.PaymentType = row[ 5 ].Value;
+					order.PaymentAuthInfo = row[ 6 ].Value;
+					order.FirstName = row[ 7 ].Value;
+					order.LastName = row[ 8 ].Value;
+					order.Email = row[ 9 ].Value;
+					order.Phone = row[ 10 ].Value;
+					order.Country = row[ 11 ].Value;
+					order.State = row[ 12 ].Value;
+					order.AddressZip = row[ 13 ].Value;
+					order.City = row[ 14 ].Value;
+					order.Address1 = row[ 15 ].Value;
+					order.Address2 = row[ 16 ].Value;
+					order.Tax = row[ 19 ].Value;
+					order.Discount = row[ 20 ].Value;
+					order.Fee = row[ 21 ].Value;
+					order.Carrier = row[ 23 ].Value;
+					order.Class = row[ 24 ].Value;
+					order.Tracking = row[ 25 ].Value;
+					order.Postage = row[ 26 ].Value;
+					order.ItemsCount = int.Parse( row[ 27 ].Value );
+
+					decimal total;
+					if( !decimal.TryParse( row[ 17 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out total ) )
+						order.Total = 0m;
+					decimal shipping;
+					if( !decimal.TryParse( row[ 18 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out shipping ) )
+						order.Shipping = 0m;
 
 					DateTime shipDate;
 					if( DateTime.TryParse( row[ 22 ].Value, out shipDate ) )
@@ -60,6 +64,8 @@ namespace TeapplixAccess.Services
 						items.Add( item );
 					}
 
+					order.Total = total;
+					order.Shipping = shipping;
 					order.Items = items;
 					orders.Add( order );
 				}
@@ -72,11 +78,11 @@ namespace TeapplixAccess.Services
 		{
 			var startColumn = 28 + 4 * itemNumber;
 			int quantity;
-			if( !int.TryParse( row[ startColumn + 1 ].Value, out quantity ) )
+			if( ( row.Count <= startColumn + 1 ) || !int.TryParse( row[ startColumn + 1 ].Value, out quantity ) )
 				quantity = 0;
 
 			decimal subtotal;
-			if( !decimal.TryParse( row[ startColumn + 3 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out subtotal ) )
+			if( ( row.Count <= startColumn + 3 ) || !decimal.TryParse( row[ startColumn + 3 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out subtotal ) )
 				subtotal = 0m;
 
 			var item = new TeapplixItem

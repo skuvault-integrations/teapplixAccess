@@ -76,6 +76,7 @@
   <ItemGroup>
     <None Include="Files\teapplix_empty_orders_export.csv" />
     <None Include="Files\teapplix_orders_export.csv" />
+    <None Include="Files\teapplix_order_bug_1.csv" />
     <None Include="Files\upload.csv" />
     <None Include="packages.config" />
   </ItemGroup>
