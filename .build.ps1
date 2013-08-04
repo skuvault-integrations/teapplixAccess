@@ -98,7 +98,7 @@ task NuGet Package, Version, {
 <package>
 	<metadata>
 		<id>TeapplixAccess</id>
-		<version>$Version-alpha5</version>
+		<version>$Version</version>
 		<authors>Slav Ivanyuk</authors>
 		<owners>Slav Ivanyuk</owners>
 		<projectUrl>https://github.com/slav/TeapplixAccess</projectUrl>
@@ -110,7 +110,7 @@ task NuGet Package, Version, {
 		<tags>Teapplix</tags>
 		<dependencies> 
 			<group targetFramework="net45">
-				<dependency id="Netco" version="1.1.0" />
+				<dependency id="Netco" version="1.3.0" />
 				<dependency id="CuttingEdge.Conditions" version="1.2.0.0" />
 				<dependency id="LINQtoCSV " version="1.2.0.0" />
 			</group>

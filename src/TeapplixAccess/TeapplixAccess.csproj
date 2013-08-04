@@ -45,9 +45,6 @@
     <Reference Include="LINQtoCSV">
       <HintPath>..\packages\LINQtoCSV.1.2.0.0\lib\LINQtoCSV.dll</HintPath>
     </Reference>
-    <Reference Include="Netco">
-      <HintPath>..\packages\Netco.1.1.0\lib\net40\Netco.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
