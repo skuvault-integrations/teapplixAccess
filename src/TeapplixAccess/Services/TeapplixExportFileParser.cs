@@ -77,22 +77,47 @@ namespace TeapplixAccess.Services
 		private TeapplixItem LoadItem( TeapplixRawDataRow row, int itemNumber )
 		{
 			var startColumn = 28 + 4 * itemNumber;
-			int quantity;
-			if( ( row.Count <= startColumn + 1 ) || !int.TryParse( row[ startColumn + 1 ].Value, out quantity ) )
-				quantity = 0;
-
-			decimal subtotal;
-			if( ( row.Count <= startColumn + 3 ) || !decimal.TryParse( row[ startColumn + 3 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out subtotal ) )
-				subtotal = 0m;
 
 			var item = new TeapplixItem
 				{
-					Descrption = row[ startColumn ].Value ?? string.Empty,
-					Quantity = quantity,
-					Sku = row[ startColumn + 2 ].Value ?? string.Empty,
-					Subtotal = subtotal
+					Descrption = GetItemDescription( row, startColumn ),
+					Quantity = this.GetItemQuantity( row, startColumn ),
+					Sku = this.GetItemSku( row, startColumn ),
+					Subtotal = this.GetItemSubtotal( row, startColumn )
 				};
 			return item;
+		}
+
+		private static string GetItemDescription( TeapplixRawDataRow row, int startColumn )
+		{
+			var description = string.Empty;
+			if( row.Count > startColumn )
+				description = row[ startColumn ].Value;
+			return description;
+		}
+
+		private int GetItemQuantity( TeapplixRawDataRow row, int startColumn )
+		{
+			int quantity;
+			if( ( row.Count <= startColumn + 1 ) || !int.TryParse( row[ startColumn + 1 ].Value, out quantity ) )
+				quantity = 0;
+			return quantity;
+		}
+
+		private string GetItemSku( TeapplixRawDataRow row, int startColumn )
+		{
+			var sku = string.Empty;
+			if( row.Count > startColumn + 2 )
+				sku = row[ startColumn + 2 ].Value;
+			return sku;
+		}
+
+		private decimal GetItemSubtotal( TeapplixRawDataRow row, int startColumn )
+		{
+			decimal subtotal;
+			if( ( row.Count <= startColumn + 3 ) || !decimal.TryParse( row[ startColumn + 3 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out subtotal ) )
+				subtotal = 0m;
+			return subtotal;
 		}
 	}
 }
