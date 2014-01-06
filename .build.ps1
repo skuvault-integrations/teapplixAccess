@@ -110,7 +110,7 @@ task NuGet Package, Version, {
 		<tags>Teapplix</tags>
 		<dependencies> 
 			<group targetFramework="net45">
-				<dependency id="Netco" version="1.3.0" />
+				<dependency id="Netco" version="1.3.1" />
 				<dependency id="CuttingEdge.Conditions" version="1.2.0.0" />
 				<dependency id="LINQtoCSV " version="1.2.0.0" />
 			</group>
