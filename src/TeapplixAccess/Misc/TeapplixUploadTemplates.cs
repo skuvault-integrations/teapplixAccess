@@ -17,7 +17,7 @@ namespace TeapplixAccess.Misc
 		public static byte[] GetHeaderTemplate()
 		{
 			const string headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
-			var header = string.Format( headerTemplate, "upload", "upload.csv", "text/plain" );
+			var header = string.Format( headerTemplate, "upload", "upload.txt", "text/plain" );
 
 			return System.Text.Encoding.UTF8.GetBytes( header );
 		}
