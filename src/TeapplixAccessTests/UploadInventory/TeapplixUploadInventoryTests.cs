@@ -95,7 +95,7 @@ namespace TeapplixAccessTests.UploadInventory
 							PostType = TeapplixUploadQuantityPostType.Credit.PostType,
 							Quantity = report[ 0 ].Items.First().Quantity.ToString( CultureInfo.InvariantCulture ),
 							SKU = "testsku1",
-							Total = report[ 0 ].Total.ToString( CultureInfo.InvariantCulture )
+							UnitPrice = report[ 0 ].Total.ToString( CultureInfo.InvariantCulture )
 						}
 				};
 

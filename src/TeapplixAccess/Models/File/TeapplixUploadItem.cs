@@ -20,7 +20,7 @@ namespace TeapplixAccess.Models.File
 		public string Quantity { get; set; }
 
 		[ CsvColumn( Name = "Unit Price", FieldIndex = 6 ) ]
-		public string Total { get; set; }
+		public string UnitPrice { get; set; }
 
 		[ CsvColumn( Name = "Location", FieldIndex = 7 ) ]
 		public string Location { get; set; }
