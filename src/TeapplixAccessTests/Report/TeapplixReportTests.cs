@@ -27,7 +27,7 @@ namespace TeapplixAccessTests.Report
 		public void Report_CreatedOrdersDownloaded()
 		{
 			var service = this.TeapplixFactory.CreateService( new TeapplixCredentials( this.Credentials.AccountName, this.Credentials.Login, this.Credentials.Password ) );
-			var report = service.GetCustomerReport( new TeapplixReportConfig( TeapplixReportSubaction.CustomerRunReport, new DateTime( 2010, 1, 22 ), new DateTime( 2010, 1, 25 ),
+			var report = service.GetCustomerReport( new TeapplixReportConfig( TeapplixReportSubaction.CustomerRunReport, new DateTime( 2010, 1, 22 ), new DateTime( 2014,5,9 ),
 				null, null ) );
 
 			var listResult = report.ToList();
@@ -38,7 +38,7 @@ namespace TeapplixAccessTests.Report
 		public void Report_CreatedOrdersDownloadedAsync()
 		{
 			var service = this.TeapplixFactory.CreateService( new TeapplixCredentials( this.Credentials.AccountName, this.Credentials.Login, this.Credentials.Password ) );
-			var report = service.GetCustomerReportAsync( new TeapplixReportConfig( TeapplixReportSubaction.CustomerRunReport, new DateTime( 2010, 1, 22 ), new DateTime( 2010, 1, 25 ),
+			var report = service.GetCustomerReportAsync(new TeapplixReportConfig(TeapplixReportSubaction.CustomerRunReport, new DateTime(2010, 1, 22), new DateTime(2014, 5, 9),
 				null, null ) );
 			var listResult = report.Result.ToList();
 

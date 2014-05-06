@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CuttingEdge.Conditions;
+using LINQtoCSV;
 using Netco.Logging;
 using TeapplixAccess.Misc;
 using TeapplixAccess.Models;
@@ -32,8 +34,61 @@ namespace TeapplixAccess
 			this.InitUploadElements();
 		}
 
-		#region Upload
-		public IEnumerable< TeapplixInventoryUploadResponse > InventoryUpload( TeapplixUploadConfig config, Stream file )
+		#region Upload Inventory
+		public IEnumerable< TeapplixInventoryUploadResponse > InventoryUpload( IEnumerable< TeapplixUploadItem > uploadItems )
+		{
+			IEnumerable< TeapplixInventoryUploadResponse > uploadResult;
+
+			using( var ms = new MemoryStream() )
+			using( var writer = new StreamWriter( ms, Encoding.UTF8 ) )
+			{
+				this.FillMemoryStream( ms, writer, uploadItems );
+				uploadResult = this.Upload( new TeapplixUploadConfig( TeapplixUploadSubactionEnum.Inventory, false, false ), ms );
+			}
+
+			return uploadResult;
+		}
+
+		public async Task< IEnumerable< TeapplixInventoryUploadResponse > > InventoryUploadAsync( IEnumerable< TeapplixUploadItem > uploadItems )
+		{
+			IEnumerable< TeapplixInventoryUploadResponse > uploadResult;
+
+			using( var ms = new MemoryStream() )
+			using( var writer = new StreamWriter( ms, Encoding.UTF8 ) )
+			{
+				this.FillMemoryStream( ms, writer, uploadItems );
+				uploadResult = await this.UploadAsync( new TeapplixUploadConfig( TeapplixUploadSubactionEnum.Inventory, false, false ), ms );
+			}
+
+			return uploadResult;
+		}
+
+		private async Task< IEnumerable< TeapplixInventoryUploadResponse > > UploadAsync( TeapplixUploadConfig config, Stream file )
+		{
+			var request = this._services.CreateServicePostRequest( config.GetServiceUrl( this._credentials ), this.Boundary );
+
+			using( var requestStream = await request.GetRequestStreamAsync() )
+			{
+				await requestStream.WriteAsync( this.BoundaryBytes, 0, this.BoundaryBytes.Length );
+
+				await requestStream.WriteAsync( this.FormItemBytes, 0, this.FormItemBytes.Length );
+
+				await requestStream.WriteAsync( this.BoundaryBytes, 0, this.BoundaryBytes.Length );
+
+				await requestStream.WriteAsync( this.HeaderBytes, 0, this.HeaderBytes.Length );
+
+				await file.CopyToAsync( requestStream );
+
+				await requestStream.WriteAsync( this.Trailer, 0, this.Trailer.Length );
+			}
+
+			var result = await this._services.GetUploadResultAsync( request );
+			this.CheckTeapplixUploadSuccess( result );
+
+			return result;
+		}
+
+		private IEnumerable< TeapplixInventoryUploadResponse > Upload( ITeapplixConfig config, Stream file )
 		{
 			IEnumerable< TeapplixInventoryUploadResponse > result = null;
 			var request = this._services.CreateServicePostRequest( config.GetServiceUrl( this._credentials ), this.Boundary );
@@ -54,41 +109,16 @@ namespace TeapplixAccess
 			}
 
 			ActionPolicies.TeapplixSubmitPolicy.Do( () =>
-				{
-					result = this._services.GetUploadResult( request );
-				} );
-			this.CheckTeapplixUploadSuccess( result );
-
-			return result;
-		}
-
-		public async Task< IEnumerable< TeapplixInventoryUploadResponse > > InventoryUploadAsync( TeapplixUploadConfig config, Stream stream )
-		{
-			var request = this._services.CreateServicePostRequest( config.GetServiceUrl( this._credentials ), this.Boundary );
-
-			using( var requestStream = await request.GetRequestStreamAsync() )
 			{
-				await requestStream.WriteAsync( this.BoundaryBytes, 0, this.BoundaryBytes.Length );
-
-				await requestStream.WriteAsync( this.FormItemBytes, 0, this.FormItemBytes.Length );
-
-				await requestStream.WriteAsync( this.BoundaryBytes, 0, this.BoundaryBytes.Length );
-
-				await requestStream.WriteAsync( this.HeaderBytes, 0, this.HeaderBytes.Length );
-
-				await stream.CopyToAsync( requestStream );
-
-				await requestStream.WriteAsync( this.Trailer, 0, this.Trailer.Length );
-			}
-
-			var result = await this._services.GetUploadResultAsync( request );
+				result = this._services.GetUploadResult( request );
+			} );
 			this.CheckTeapplixUploadSuccess( result );
 
 			return result;
 		}
 		#endregion
 
-		#region Report
+		#region Customer Report (Orders)
 
 		public IEnumerable< TeapplixOrder > GetCustomerReport( TeapplixReportConfig config )
 		{
@@ -134,23 +164,39 @@ namespace TeapplixAccess
 		}
 		#endregion
 
+		#region Misc
 		private void CheckTeapplixUploadSuccess( IEnumerable< TeapplixInventoryUploadResponse > uploadResponse )
 		{
-			foreach( var item in uploadResponse )
-			{
-				if( item.Status != InventoryUploadStatusEnum.Success )
-					this.LogUploadItemResponseError( item );
-			}
+			foreach( var item in uploadResponse.Where( item => item.Status != InventoryUploadStatusEnum.Success ) )
+				this.LogUploadItemResponseError( item );
 		}
 
 		private void InitUploadElements()
 		{
-			this.Boundary = DateTime.Now.Ticks.ToString("x");
-			this.BoundaryBytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + this.Boundary + "\r\n");
-			this.Trailer = System.Text.Encoding.ASCII.GetBytes("\r\n--" + this.Boundary + "--\r\n");
+			this.Boundary = DateTime.Now.Ticks.ToString( "x" );
+			this.BoundaryBytes = Encoding.ASCII.GetBytes( "\r\n--" + this.Boundary + "\r\n" );
+			this.Trailer = Encoding.ASCII.GetBytes( "\r\n--" + this.Boundary + "--\r\n" );
 			this.FormItemBytes = TeapplixUploadTemplates.GetFormDataTemplate();
 			this.HeaderBytes = TeapplixUploadTemplates.GetHeaderTemplate();
 		}
+
+		private CsvFileDescription CreateCsvFileDescription()
+		{
+			return new CsvFileDescription
+			{
+				SeparatorChar = ',',
+				FirstLineHasColumnNames = true,
+			};
+		}
+
+		private void FillMemoryStream( Stream memoryStream, TextWriter streamWriter, IEnumerable< TeapplixUploadItem > uploadItems )
+		{
+			var context = new CsvContext();
+			context.Write( uploadItems, streamWriter, this.CreateCsvFileDescription() );
+			streamWriter.Flush();
+			memoryStream.Position = 0;
+		}
+		#endregion
 
 		#region Logging
 		public void LogReportResponseError()

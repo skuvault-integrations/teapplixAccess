@@ -5,6 +5,5 @@ namespace TeapplixAccess.Models.File
 {
 	internal sealed class TeapplixRawDataRow : List< DataRowItem >, IDataRow
 	{
-
 	}
 }

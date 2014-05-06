@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using TeapplixAccess.Models;
 using TeapplixAccess.Models.File;
@@ -12,19 +11,17 @@ namespace TeapplixAccess
 		/// upload inventory file
 		/// http://www.teapplix.com/help/wp-content/uploads/2013/02/upload.csv
 		/// </summary>
-		/// <param name="config">Upload settings</param>
-		/// <param name="stream">Stream to upload</param>
+		/// <param name="uploadItems">items to upload</param>
 		/// <returns>Information about the not added/updated items</returns>
-		IEnumerable< TeapplixInventoryUploadResponse > InventoryUpload( TeapplixUploadConfig config, Stream stream );
+		IEnumerable< TeapplixInventoryUploadResponse > InventoryUpload( IEnumerable< TeapplixUploadItem > uploadItems );
 
 		/// <summary>
 		/// upload inventory file async
 		/// http://www.teapplix.com/help/wp-content/uploads/2013/02/upload.csv
 		/// </summary>
-		/// <param name="config">Upload settings</param>
-		/// <param name="stream">Stream to upload</param>
+		/// <param name="uploadItems">items to upload</param>
 		/// <returns>Information about the not added/updated items</returns>
-		Task< IEnumerable< TeapplixInventoryUploadResponse > > InventoryUploadAsync( TeapplixUploadConfig config, Stream stream );
+		Task< IEnumerable< TeapplixInventoryUploadResponse > > InventoryUploadAsync( IEnumerable< TeapplixUploadItem > uploadItems );
 
 		/// <summary>
 		/// Download customer report
