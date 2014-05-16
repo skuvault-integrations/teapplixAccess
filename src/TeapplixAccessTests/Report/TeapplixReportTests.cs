@@ -38,7 +38,7 @@ namespace TeapplixAccessTests.Report
 		public void Report_CreatedOrdersDownloadedAsync()
 		{
 			var service = this.TeapplixFactory.CreateService( new TeapplixCredentials( this.Credentials.AccountName, this.Credentials.Login, this.Credentials.Password ) );
-			var report = service.GetCustomerReportAsync(new TeapplixReportConfig(TeapplixReportSubaction.CustomerRunReport, new DateTime(2010, 1, 22), new DateTime(2014, 5, 9),
+			var report = service.GetCustomerReportAsync(new TeapplixReportConfig(TeapplixReportSubaction.CustomerRunReport, new DateTime(2014, 3, 26), new DateTime(2014, 5, 20),
 				null, null ) );
 			var listResult = report.Result.ToList();
 
@@ -50,7 +50,7 @@ namespace TeapplixAccessTests.Report
 		{
 			var service = this.TeapplixFactory.CreateService( new TeapplixCredentials( this.Credentials.AccountName, this.Credentials.Login, this.Credentials.Password ) );
 			var report = service.GetCustomerReport( new TeapplixReportConfig( TeapplixReportSubaction.CustomerRunReport, null, null,
-				new DateTime( 2013, 7, 13 ), new DateTime( 2013, 7, 14 ) ) );
+				new DateTime(2014, 3, 26), new DateTime(2014, 5, 20)));
 			var listResult = report.ToList();
 
 			listResult.Count.Should().Be( 3 );

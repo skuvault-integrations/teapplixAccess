@@ -80,6 +80,8 @@ namespace TeapplixAccess
 				await file.CopyToAsync( requestStream );
 
 				await requestStream.WriteAsync( this.Trailer, 0, this.Trailer.Length );
+
+				this.LogUploadContent( requestStream );
 			}
 
 			var result = await this._services.GetUploadResultAsync( request );
@@ -106,6 +108,8 @@ namespace TeapplixAccess
 				file.CopyTo( requestStream );
 
 				requestStream.Write( this.Trailer, 0, this.Trailer.Length );
+
+				this.LogUploadContent( requestStream );
 			}
 
 			ActionPolicies.TeapplixSubmitPolicy.Do( () =>
@@ -207,6 +211,14 @@ namespace TeapplixAccess
 		public void LogUploadItemResponseError( TeapplixInventoryUploadResponse response )
 		{
 			this.Log().Error( "Failed to upload item with SKU '{0}'. Status code:'{1}', message: {2}", response.Sku, response.Status, response.Message );
+		}
+
+		private void LogUploadContent( Stream stream )
+		{
+			var reader = new StreamReader( stream );
+			var content = reader.ReadToEnd();
+
+			this.Log().Error( "Upload content for account '{0}':\n {1}", this._credentials.AccountName, content );
 		}
 		#endregion
 	}
