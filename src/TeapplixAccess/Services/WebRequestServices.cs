@@ -50,6 +50,8 @@ namespace TeapplixAccess.Services
 					if( stream != null )
 						stream.CopyTo( memStream, 0x100 );
 
+					this.Log().LogStream( "response", this._credentials.AccountName, memStream );
+
 					var parser = new TeapplixUploadResponseParser();
 					result = parser.Parse( memStream );
 				}
@@ -73,6 +75,8 @@ namespace TeapplixAccess.Services
 					var memStream = new MemoryStream();
 					if( stream != null )
 						await stream.CopyToAsync( memStream, 0x100 );
+
+					this.Log().LogStream( "response", this._credentials.AccountName, memStream );
 
 					var parser = new TeapplixUploadResponseParser();
 					result = parser.Parse( memStream );

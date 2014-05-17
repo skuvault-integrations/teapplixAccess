@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using FluentAssertions;
 using LINQtoCSV;
+using Netco.Logging;
 using NUnit.Framework;
 using TeapplixAccess;
 using TeapplixAccess.Models;
@@ -27,6 +28,7 @@ namespace TeapplixAccessTests.UploadInventory
 			var cc = new CsvContext();
 			this.Credentials = cc.Read< TestCredentials >( credentialsFilePath, new CsvFileDescription { FirstLineHasColumnNames = true } ).FirstOrDefault();
 			this.UploadData = cc.Read< TeapplixUploadItem >( uploadFilePath, new CsvFileDescription { FirstLineHasColumnNames = true } ).ToList();
+			NetcoLogger.LoggerFactory = new ConsoleLoggerFactory();
 		}
 
 		[ Test ]

@@ -15,7 +15,7 @@ using TeapplixAccess.Services;
 
 namespace TeapplixAccess
 {
-	public sealed class TeapplixService : ITeapplixService
+	public sealed class TeapplixService: ITeapplixService
 	{
 		private readonly WebRequestServices _services;
 		private readonly TeapplixCredentials _credentials;
@@ -67,7 +67,7 @@ namespace TeapplixAccess
 		{
 			var request = this._services.CreateServicePostRequest( config.GetServiceUrl( this._credentials ), this.Boundary );
 
-			using( var requestStream = await request.GetRequestStreamAsync() )
+			using( var requestStream = new LoggingStream( await request.GetRequestStreamAsync() ) )
 			{
 				await requestStream.WriteAsync( this.BoundaryBytes, 0, this.BoundaryBytes.Length );
 
@@ -81,7 +81,7 @@ namespace TeapplixAccess
 
 				await requestStream.WriteAsync( this.Trailer, 0, this.Trailer.Length );
 
-				this.LogUploadContent( requestStream );
+				this.Log().LogStream( "request", this._credentials.AccountName, requestStream );
 			}
 
 			var result = await this._services.GetUploadResultAsync( request );
@@ -95,7 +95,7 @@ namespace TeapplixAccess
 			IEnumerable< TeapplixInventoryUploadResponse > result = null;
 			var request = this._services.CreateServicePostRequest( config.GetServiceUrl( this._credentials ), this.Boundary );
 
-			using( var requestStream = request.GetRequestStream() )
+			using( var requestStream = new LoggingStream( request.GetRequestStream() ) )
 			{
 				requestStream.Write( this.BoundaryBytes, 0, this.BoundaryBytes.Length );
 
@@ -109,7 +109,7 @@ namespace TeapplixAccess
 
 				requestStream.Write( this.Trailer, 0, this.Trailer.Length );
 
-				this.LogUploadContent( requestStream );
+				this.Log().LogStream( "request", this._credentials.AccountName, requestStream );
 			}
 
 			ActionPolicies.TeapplixSubmitPolicy.Do( () =>
@@ -123,7 +123,6 @@ namespace TeapplixAccess
 		#endregion
 
 		#region Customer Report (Orders)
-
 		public IEnumerable< TeapplixOrder > GetCustomerReport( TeapplixReportConfig config )
 		{
 			var reequest = this._services.CreateServiceGetRequest( config.GetServiceUrl( this._credentials ) );
@@ -139,6 +138,8 @@ namespace TeapplixAccess
 
 				var memStream = new MemoryStream();
 				responseStream.CopyTo( memStream, 0x1000 );
+
+				this.Log().LogStream( "response", this._credentials.AccountName, memStream );
 
 				var orders = ActionPolicies.TeapplixGetPolicy.Get( () => this._services.GetParsedOrders( memStream ) );
 				return orders;
@@ -163,6 +164,8 @@ namespace TeapplixAccess
 				var memStream = new MemoryStream();
 				await responseStream.CopyToAsync( memStream, 0x1000, token );
 
+				this.Log().LogStream( "response", this._credentials.AccountName, memStream );
+
 				return this._services.GetParsedOrders( memStream );
 			}
 		}
@@ -172,7 +175,9 @@ namespace TeapplixAccess
 		private void CheckTeapplixUploadSuccess( IEnumerable< TeapplixInventoryUploadResponse > uploadResponse )
 		{
 			foreach( var item in uploadResponse.Where( item => item.Status != InventoryUploadStatusEnum.Success ) )
+			{
 				this.LogUploadItemResponseError( item );
+			}
 		}
 
 		private void InitUploadElements()
@@ -211,16 +216,6 @@ namespace TeapplixAccess
 		public void LogUploadItemResponseError( TeapplixInventoryUploadResponse response )
 		{
 			this.Log().Error( "Failed to upload item with SKU '{0}'. Status code:'{1}', message: {2}", response.Sku, response.Status, response.Message );
-		}
-
-		private void LogUploadContent( Stream stream )
-		{
-			using( var reader = new StreamReader( stream ) )
-			{
-				var content = reader.ReadToEnd();
-
-				this.Log().Info( "Upload content for account '{0}':\n {1}", this._credentials.AccountName, content );
-			}
 		}
 		#endregion
 	}

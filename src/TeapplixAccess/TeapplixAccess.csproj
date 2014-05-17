@@ -65,6 +65,7 @@
     <Compile Include="Models\ITeapplixConfig.cs" />
     <Compile Include="Models\TeapplixSubactions.cs" />
     <Compile Include="Models\TeapplixUploadQuantityPostType.cs" />
+    <Compile Include="Services\LogServices.cs" />
     <Compile Include="Services\TeapplixUploadResponseParser.cs" />
     <Compile Include="Misc\TeapplixUploadTemplates.cs" />
     <Compile Include="Models\File\TeapplixUploadItem.cs" />
