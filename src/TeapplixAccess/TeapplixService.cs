@@ -215,10 +215,12 @@ namespace TeapplixAccess
 
 		private void LogUploadContent( Stream stream )
 		{
-			var reader = new StreamReader( stream );
-			var content = reader.ReadToEnd();
+			using( var reader = new StreamReader( stream ) )
+			{
+				var content = reader.ReadToEnd();
 
-			this.Log().Error( "Upload content for account '{0}':\n {1}", this._credentials.AccountName, content );
+				this.Log().Info( "Upload content for account '{0}':\n {1}", this._credentials.AccountName, content );
+			}
 		}
 		#endregion
 	}
