@@ -40,7 +40,7 @@ namespace TeapplixAccess
 			IEnumerable< TeapplixInventoryUploadResponse > uploadResult;
 
 			using( var ms = new MemoryStream() )
-			using( var writer = new StreamWriter( ms, Encoding.UTF8 ) )
+			using( var writer = new StreamWriter( ms ) )
 			{
 				this.FillMemoryStream( ms, writer, uploadItems );
 				uploadResult = this.Upload( new TeapplixUploadConfig( TeapplixUploadSubactionEnum.Inventory, false, false ), ms );
@@ -54,7 +54,7 @@ namespace TeapplixAccess
 			IEnumerable< TeapplixInventoryUploadResponse > uploadResult;
 
 			using( var ms = new MemoryStream() )
-			using( var writer = new StreamWriter( ms, Encoding.UTF8 ) )
+			using( var writer = new StreamWriter( ms ) )
 			{
 				this.FillMemoryStream( ms, writer, uploadItems );
 				uploadResult = await this.UploadAsync( new TeapplixUploadConfig( TeapplixUploadSubactionEnum.Inventory, false, false ), ms );

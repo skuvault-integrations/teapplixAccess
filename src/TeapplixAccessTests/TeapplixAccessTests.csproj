@@ -57,9 +57,6 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Xml" />
-    <Reference Include="TeapplixAccess">
-      <HintPath>..\TeapplixAccess\bin\Debug\TeapplixAccess.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Global\GlobalAssemblyInfo.cs">
@@ -88,6 +85,12 @@
     <None Include="Files\teapplix_orders_export.csv" />
     <None Include="Files\upload.csv" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TeapplixAccess\TeapplixAccess.csproj">
+      <Project>{5a25ac40-292a-497a-9314-b281252cab3f}</Project>
+      <Name>TeapplixAccess</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
