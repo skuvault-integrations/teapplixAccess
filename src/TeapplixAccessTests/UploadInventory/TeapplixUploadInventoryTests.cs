@@ -92,7 +92,7 @@ namespace TeapplixAccessTests.UploadInventory
 					PostDate = DateTime.UtcNow.AddDays( 2 ).ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ),
 					PostType = TeapplixUploadQuantityPostType.Debit.PostType,
 					Quantity = "2",
-					SKU = "testsku2",
+					SKU = "testsku23",
 					UnitPrice = "12.84"
 				}
 			};
