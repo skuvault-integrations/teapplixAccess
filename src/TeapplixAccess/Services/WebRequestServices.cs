@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using CuttingEdge.Conditions;
 using Netco.Logging;
+using TeapplixAccess.Misc;
 using TeapplixAccess.Models;
 using TeapplixAccess.Models.File;
 
@@ -50,7 +51,7 @@ namespace TeapplixAccess.Services
 					if( stream != null )
 						stream.CopyTo( memStream, 0x100 );
 
-					this.Log().LogStream( "response", this._credentials.AccountName, memStream );
+					LogServices.Logger.LogStream( "response", this._credentials.AccountName, memStream );
 
 					var parser = new TeapplixUploadResponseParser();
 					result = parser.Parse( memStream );
@@ -66,7 +67,7 @@ namespace TeapplixAccess.Services
 
 		public async Task< IEnumerable< TeapplixInventoryUploadResponse > > GetUploadResultAsync( WebRequest request )
 		{
-			IEnumerable<TeapplixInventoryUploadResponse> result;
+			IEnumerable< TeapplixInventoryUploadResponse > result;
 			using( var response = await request.GetResponseAsync() )
 			{
 				try
@@ -76,7 +77,7 @@ namespace TeapplixAccess.Services
 					if( stream != null )
 						await stream.CopyToAsync( memStream, 0x100 );
 
-					this.Log().LogStream( "response", this._credentials.AccountName, memStream );
+					LogServices.Logger.LogStream( "response", this._credentials.AccountName, memStream );
 
 					var parser = new TeapplixUploadResponseParser();
 					result = parser.Parse( memStream );
@@ -113,12 +114,12 @@ namespace TeapplixAccess.Services
 			var reader = new StreamReader( rawStream );
 			var rawTeapplixExport = reader.ReadToEnd();
 
-			this.Log().Error( "Failed to parse file for account '{0}':\n\r{1}", this._credentials.AccountName, rawTeapplixExport );
+			LogServices.Logger.Error( "Failed to parse file for account '{0}':\n\r{1}", this._credentials.AccountName, rawTeapplixExport );
 		}
 
 		private void LogUploadHttpError( string status )
 		{
-			this.Log().Error( "Failed to to upload file for account '{0}'. Request status is '{1}'", this._credentials.AccountName, status );
+			LogServices.Logger.Error( "Failed to to upload file for account '{0}'. Request status is '{1}'", this._credentials.AccountName, status );
 		}
 		#endregion
 	}

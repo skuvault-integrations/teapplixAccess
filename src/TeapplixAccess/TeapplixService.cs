@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using CuttingEdge.Conditions;
 using LINQtoCSV;
-using Netco.Logging;
 using TeapplixAccess.Misc;
 using TeapplixAccess.Models;
 using TeapplixAccess.Models.File;
@@ -81,7 +80,7 @@ namespace TeapplixAccess
 
 				await requestStream.WriteAsync( this.Trailer, 0, this.Trailer.Length );
 
-				this.Log().LogStream( "request", this._credentials.AccountName, requestStream );
+				LogServices.Logger.LogStream( "request", this._credentials.AccountName, requestStream );
 			}
 
 			var result = await this._services.GetUploadResultAsync( request );
@@ -109,7 +108,7 @@ namespace TeapplixAccess
 
 				requestStream.Write( this.Trailer, 0, this.Trailer.Length );
 
-				this.Log().LogStream( "request", this._credentials.AccountName, requestStream );
+				LogServices.Logger.LogStream( "request", this._credentials.AccountName, requestStream );
 			}
 
 			ActionPolicies.TeapplixSubmitPolicy.Do( () =>
@@ -139,7 +138,7 @@ namespace TeapplixAccess
 				var memStream = new MemoryStream();
 				responseStream.CopyTo( memStream, 0x1000 );
 
-				this.Log().LogStream( "response", this._credentials.AccountName, memStream );
+				LogServices.Logger.LogStream( "response", this._credentials.AccountName, memStream );
 
 				var orders = ActionPolicies.TeapplixGetPolicy.Get( () => this._services.GetParsedOrders( memStream ) );
 				return orders;
@@ -164,7 +163,7 @@ namespace TeapplixAccess
 				var memStream = new MemoryStream();
 				await responseStream.CopyToAsync( memStream, 0x1000, token );
 
-				this.Log().LogStream( "response", this._credentials.AccountName, memStream );
+				LogServices.Logger.LogStream( "response", this._credentials.AccountName, memStream );
 
 				return this._services.GetParsedOrders( memStream );
 			}
@@ -210,12 +209,12 @@ namespace TeapplixAccess
 		#region Logging
 		public void LogReportResponseError()
 		{
-			this.Log().Error( "Failed to get file for account '{0}'", this._credentials.AccountName );
+			LogServices.Logger.Error( "Failed to get file for account '{0}'", this._credentials.AccountName );
 		}
 
 		public void LogUploadItemResponseError( TeapplixInventoryUploadResponse response )
 		{
-			this.Log().Error( "Failed to upload item with SKU '{0}'. Status code:'{1}', message: {2}", response.Sku, response.Status, response.Message );
+			LogServices.Logger.Error( "Failed to upload item with SKU '{0}'. Status code:'{1}', message: {2}", response.Sku, response.Status, response.Message );
 		}
 		#endregion
 	}
