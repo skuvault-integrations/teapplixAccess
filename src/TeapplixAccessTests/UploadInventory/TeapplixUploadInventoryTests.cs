@@ -77,24 +77,24 @@ namespace TeapplixAccessTests.UploadInventory
 			{
 				new TeapplixUploadItem
 				{
-					Location = "location1",
+					Location = "DG01 (309), EC05 (19)",
 					PostComment = "blablabla1",
 					PostDate = DateTime.UtcNow.AddDays( 1 ).ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ),
-					PostType = TeapplixUploadQuantityPostType.Credit.PostType,
-					Quantity = "1",
+					PostType = TeapplixUploadQuantityPostType.InStock.PostType,
+					Quantity = "44",
 					SKU = "testsku1",
-					UnitPrice = "3.24"
-				},
-				new TeapplixUploadItem
-				{
-					Location = "location2",
-					PostComment = "sdsdsdsdsd",
-					PostDate = DateTime.UtcNow.AddDays( 2 ).ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ),
-					PostType = TeapplixUploadQuantityPostType.Debit.PostType,
-					Quantity = "2",
-					SKU = "testsku2",
-					UnitPrice = "12.84"
-				}
+					UnitPrice = "3.24"}
+				//},
+				//new TeapplixUploadItem
+				//{
+				//	Location = "location2888",
+				//	PostComment = "sdsdsdsdsd",
+				//	PostDate = DateTime.UtcNow.AddDays( 2 ).ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ),
+				//	PostType = TeapplixUploadQuantityPostType.Debit.PostType,
+				//	Quantity = "267",
+				//	SKU = "testsku2",
+				//	UnitPrice = "12.84"
+				//}
 			};
 
 		}

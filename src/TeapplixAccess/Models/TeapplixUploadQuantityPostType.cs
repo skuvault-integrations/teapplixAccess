@@ -7,7 +7,7 @@
 		/// Teapplix ignore any quantity entries before this date, and start counting inventory from 
 		/// after this date onwards.
 		/// </summary>
-		public static readonly TeapplixUploadQuantityPostType InStock = new TeapplixUploadQuantityPostType( "In-stock" );
+		public static readonly TeapplixUploadQuantityPostType InStock = new TeapplixUploadQuantityPostType( "in-stock" );
 
 		/// <summary>
 		/// this corresponds to you purchasing and receiving additional quantities of certain inventory. 
