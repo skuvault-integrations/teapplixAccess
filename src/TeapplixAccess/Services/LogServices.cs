@@ -24,6 +24,8 @@ namespace TeapplixAccess.Services
 
 			logger.Trace( "'{0}' content for account '{1}':\n {2}", contentType, context, streamContent );
 		}
+
+		public static readonly ILogger Logger = NetcoLogger.GetLogger( "TeapplixService" );
 	}
 
 	/// <summary>
