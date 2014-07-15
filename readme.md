@@ -1,1 +1,0 @@
-TeapplixAccess is .NET wrapper around [Teapplix API](http://www.teapplix.com/help/?page_id=1020) was created to simplify and speed up working with it.
