@@ -25,34 +25,33 @@ namespace TeapplixAccess.Services
 
 		private TeapplixOrder FillOrder( TeapplixRawDataRow row )
 		{
-			var order = new TeapplixOrder
-			{
-				OrderSource = row[ 0 ].Value ?? string.Empty,
-				AccountId = row[ 1 ].Value ?? string.Empty,
-				TnxId = row[ 2 ].Value ?? string.Empty,
-				TnxId2 = row[ 3 ].Value ?? string.Empty,
-				Date = string.IsNullOrEmpty( row[ 4 ].Value ) ? DateTime.MinValue : DateTime.Parse( row[ 4 ].Value, CultureInfo.InvariantCulture ),
-				PaymentType = row[ 5 ].Value ?? string.Empty,
-				PaymentAuthInfo = row[ 6 ].Value ?? string.Empty,
-				FirstName = row[ 7 ].Value ?? string.Empty,
-				LastName = row[ 8 ].Value ?? string.Empty,
-				Email = row[ 9 ].Value ?? string.Empty,
-				Phone = row[ 10 ].Value ?? string.Empty,
-				Country = row[ 11 ].Value ?? string.Empty,
-				State = row[ 12 ].Value ?? string.Empty,
-				AddressZip = row[ 13 ].Value ?? string.Empty,
-				City = row[ 14 ].Value ?? string.Empty,
-				Address1 = row[ 15 ].Value ?? string.Empty,
-				Address2 = row[ 16 ].Value ?? string.Empty,
-				Tax = row[ 19 ].Value ?? string.Empty,
-				Discount = row[ 20 ].Value ?? string.Empty,
-				Fee = row[ 21 ].Value ?? string.Empty,
-				Carrier = row[ 23 ].Value ?? string.Empty,
-				Class = row[ 24 ].Value ?? string.Empty,
-				Tracking = row[ 25 ].Value ?? string.Empty,
-				Postage = row[ 26 ].Value ?? string.Empty,
-				ItemsCount = string.IsNullOrEmpty( row[ 27 ].Value ) ? 0 : int.Parse( row[ 27 ].Value )
-			};
+			var order = new TeapplixOrder();
+
+			order.OrderSource = row[ 0 ].Value ?? string.Empty;
+			order.AccountId = row[ 1 ].Value ?? string.Empty;
+			order.TnxId = row[ 2 ].Value ?? string.Empty;
+			order.TnxId2 = row[ 3 ].Value ?? string.Empty;
+			order.Date = string.IsNullOrEmpty( row[ 4 ].Value ) ? DateTime.MinValue : DateTime.Parse( row[ 4 ].Value, CultureInfo.InvariantCulture );
+			order.PaymentType = row[ 5 ].Value ?? string.Empty;
+			order.PaymentAuthInfo = row[ 6 ].Value ?? string.Empty;
+			order.FirstName = row[ 7 ].Value ?? string.Empty;
+			order.LastName = row[ 8 ].Value ?? string.Empty;
+			order.Email = row[ 9 ].Value ?? string.Empty;
+			order.Phone = row[ 10 ].Value ?? string.Empty;
+			order.Country = row[ 11 ].Value ?? string.Empty;
+			order.State = row[ 12 ].Value ?? string.Empty;
+			order.AddressZip = row[ 13 ].Value ?? string.Empty;
+			order.City = row[ 14 ].Value ?? string.Empty;
+			order.Address1 = row[ 15 ].Value ?? string.Empty;
+			order.Address2 = row[ 16 ].Value ?? string.Empty;
+			order.Tax = row[ 19 ].Value ?? string.Empty;
+			order.Discount = row[ 20 ].Value ?? string.Empty;
+			order.Fee = row[ 21 ].Value ?? string.Empty;
+			order.Carrier = row[ 23 ].Value ?? string.Empty;
+			order.Class = row[ 24 ].Value ?? string.Empty;
+			order.Tracking = row[ 25 ].Value ?? string.Empty;
+			order.Postage = row[ 26 ].Value ?? string.Empty;
+			order.ItemsCount = this.GetItemsCount( row[ 27 ].Value, order.ItemsCount );
 
 			decimal total;
 			if( !decimal.TryParse( row[ 17 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out total ) )
@@ -124,6 +123,14 @@ namespace TeapplixAccess.Services
 			if( ( row.Count <= startColumn + 3 ) || !decimal.TryParse( row[ startColumn + 3 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out subtotal ) )
 				subtotal = 0m;
 			return subtotal;
+		}
+
+		private int GetItemsCount( string value, int itemsCount )
+		{
+			int count;
+			if( int.TryParse( value, out count ) )
+				return count;
+			return itemsCount;
 		}
 	}
 }
