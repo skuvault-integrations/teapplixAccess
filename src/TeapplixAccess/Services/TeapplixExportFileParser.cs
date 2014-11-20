@@ -51,7 +51,7 @@ namespace TeapplixAccess.Services
 			order.Class = row[ 24 ].Value ?? string.Empty;
 			order.Tracking = row[ 25 ].Value ?? string.Empty;
 			order.Postage = row[ 26 ].Value ?? string.Empty;
-			order.ItemsCount = this.GetItemsCount( row[ 27 ].Value, order.ItemsCount );
+			order.ItemsCount = this.GetItemsCount( row[ 27 ].Value );
 
 			decimal total;
 			if( !decimal.TryParse( row[ 17 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out total ) )
@@ -125,12 +125,12 @@ namespace TeapplixAccess.Services
 			return subtotal;
 		}
 
-		private int GetItemsCount( string value, int itemsCount )
+		private int GetItemsCount( string value )
 		{
 			int count;
 			if( int.TryParse( value, out count ) )
 				return count;
-			return itemsCount;
+			return 1;
 		}
 	}
 }
