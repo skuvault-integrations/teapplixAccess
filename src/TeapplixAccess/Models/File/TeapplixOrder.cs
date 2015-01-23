@@ -59,6 +59,8 @@ namespace TeapplixAccess.Models.File
 
 		public string Postage;
 
+		public string PostageAccount;
+
 		public int ItemsCount;
 
 		public List< TeapplixItem > Items;

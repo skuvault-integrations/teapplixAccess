@@ -51,7 +51,8 @@ namespace TeapplixAccess.Services
 			order.Class = row[ 24 ].Value ?? string.Empty;
 			order.Tracking = row[ 25 ].Value ?? string.Empty;
 			order.Postage = row[ 26 ].Value ?? string.Empty;
-			order.ItemsCount = this.GetItemsCount( row[ 27 ].Value );
+			order.PostageAccount = row[ 27 ].Value ?? string.Empty;
+			order.ItemsCount = this.GetItemsCount( row[ 28 ].Value );
 
 			decimal total;
 			if( !decimal.TryParse( row[ 17 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out total ) )
@@ -81,7 +82,7 @@ namespace TeapplixAccess.Services
 
 		private TeapplixItem LoadItem( TeapplixRawDataRow row, int itemNumber )
 		{
-			var startColumn = 28 + 4 * itemNumber;
+			var startColumn = 29 + 4 * itemNumber;
 
 			var item = new TeapplixItem
 			{
