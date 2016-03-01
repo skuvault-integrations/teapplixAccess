@@ -46,15 +46,19 @@ namespace TeapplixAccess.Services
 			{
 				try
 				{
-					var stream = response.GetResponseStream();
-					var memStream = new MemoryStream();
-					if( stream != null )
-						stream.CopyTo( memStream, 0x100 );
+					using( var stream = response.GetResponseStream() )
+					{
+						using( var memStream = new MemoryStream() )
+						{
+							if( stream != null )
+								stream.CopyTo( memStream, 0x100 );
 
-					LogServices.Logger.LogStream( "response", this._credentials.AccountName, memStream );
+							LogServices.Logger.LogStream( "response", this._credentials.AccountName, memStream );
 
-					var parser = new TeapplixUploadResponseParser();
-					result = parser.Parse( memStream );
+							var parser = new TeapplixUploadResponseParser();
+							result = parser.Parse( memStream );
+						}
+					}
 				}
 				catch( WebException ex )
 				{
@@ -73,14 +77,16 @@ namespace TeapplixAccess.Services
 				try
 				{
 					var stream = response.GetResponseStream();
-					var memStream = new MemoryStream();
-					if( stream != null )
-						await stream.CopyToAsync( memStream, 0x100 );
+					using( var memStream = new MemoryStream() )
+					{
+						if( stream != null )
+							await stream.CopyToAsync( memStream, 0x100 );
 
-					LogServices.Logger.LogStream( "response", this._credentials.AccountName, memStream );
+						LogServices.Logger.LogStream( "response", this._credentials.AccountName, memStream );
 
-					var parser = new TeapplixUploadResponseParser();
-					result = parser.Parse( memStream );
+						var parser = new TeapplixUploadResponseParser();
+						result = parser.Parse( memStream );
+					}
 				}
 				catch( WebException ex )
 				{
@@ -110,9 +116,14 @@ namespace TeapplixAccess.Services
 		#region logging
 		private void LogParseReportError( MemoryStream stream )
 		{
-			var rawStream = new MemoryStream( stream.ToArray() );
-			var reader = new StreamReader( rawStream );
-			var rawTeapplixExport = reader.ReadToEnd();
+			string rawTeapplixExport;
+			using( var rawStream = new MemoryStream( stream.ToArray() ) )
+			{
+				using( var reader = new StreamReader( rawStream ) )
+				{
+					rawTeapplixExport = reader.ReadToEnd();
+				}
+			}
 
 			LogServices.Logger.Error( "Failed to parse file for account '{0}':\n\r{1}", this._credentials.AccountName, rawTeapplixExport );
 		}

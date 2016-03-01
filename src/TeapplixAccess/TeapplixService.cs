@@ -135,12 +135,15 @@ namespace TeapplixAccess
 					return Enumerable.Empty< TeapplixOrder >();
 				}
 
-				var memStream = new MemoryStream();
-				responseStream.CopyTo( memStream, 0x1000 );
+				IEnumerable< TeapplixOrder > orders;
+				using(var memStream = new MemoryStream() )
+				{
+					responseStream.CopyTo( memStream, 0x1000 );
 
-				LogServices.Logger.LogStream( "response", this._credentials.AccountName, memStream );
+					LogServices.Logger.LogStream( "response", this._credentials.AccountName, memStream );
 
-				var orders = ActionPolicies.TeapplixGetPolicy.Get( () => this._services.GetParsedOrders( memStream ) );
+					orders = this._services.GetParsedOrders( memStream );
+				}
 				return orders;
 			}
 		}
@@ -160,12 +163,14 @@ namespace TeapplixAccess
 					return Enumerable.Empty< TeapplixOrder >();
 				}
 
-				var memStream = new MemoryStream();
-				await responseStream.CopyToAsync( memStream, 0x1000, token );
+				using( var memStream = new MemoryStream() )
+				{
+					await responseStream.CopyToAsync( memStream, 0x1000, token );
 
-				LogServices.Logger.LogStream( "response", this._credentials.AccountName, memStream );
+					LogServices.Logger.LogStream( "response", this._credentials.AccountName, memStream );
 
-				return this._services.GetParsedOrders( memStream );
+					return this._services.GetParsedOrders( memStream );
+				}
 			}
 		}
 		#endregion
