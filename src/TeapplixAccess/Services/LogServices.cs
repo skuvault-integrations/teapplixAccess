@@ -18,11 +18,8 @@ namespace TeapplixAccess.Services
 				return;
 
 			stream.Position = 0;
-			string streamContent;
-			using( var reader = new StreamReader( stream ) )
-			{
-				streamContent = reader.ReadToEnd();
-			}
+			var reader = new StreamReader( stream );
+			var streamContent = reader.ReadToEnd();
 			stream.Position = 0;
 
 			logger.Trace( "'{0}' content for account '{1}':\n {2}", contentType, context, streamContent );

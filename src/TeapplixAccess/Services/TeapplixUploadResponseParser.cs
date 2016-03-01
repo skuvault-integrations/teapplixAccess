@@ -12,11 +12,11 @@ namespace TeapplixAccess.Services
 		{
 			var result = new List< TeapplixInventoryUploadResponse >();
 
-			using( var reader = new StreamReader( source ) )
+			var reader = new StreamReader( source );
+			var cc = new CsvContext();
+			foreach( var row in cc.Read< TeapplixRawDataRow >( reader, new CsvFileDescription { FirstLineHasColumnNames = true } ) )
 			{
-				var cc = new CsvContext();
-				foreach( var row in cc.Read< TeapplixRawDataRow >( reader, new CsvFileDescription { FirstLineHasColumnNames = true } ) )
-					result.Add( new TeapplixInventoryUploadResponse( row[ 0 ].Value, row[ 1 ].Value, row[ 2 ].Value ) );
+				result.Add( new TeapplixInventoryUploadResponse( row[ 0 ].Value, row[ 1 ].Value, row[ 2 ].Value ) );
 			}
 
 			return result;

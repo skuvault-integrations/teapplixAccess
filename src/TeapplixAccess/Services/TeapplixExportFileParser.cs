@@ -15,12 +15,9 @@ namespace TeapplixAccess.Services
 			var orders = new List< TeapplixOrder >();
 			var cc = new CsvContext();
 
-			using( var reader = new StreamReader( source ) )
-			{
-				orders.AddRange( cc.Read< TeapplixRawDataRow >( reader, new CsvFileDescription { FirstLineHasColumnNames = true } ).Select( this.FillOrder ) );
-
-				return orders;
-			}
+			var reader = new StreamReader( source );
+			orders.AddRange( cc.Read< TeapplixRawDataRow >( reader, new CsvFileDescription { FirstLineHasColumnNames = true } ).Select( this.FillOrder ) );
+			return orders;
 		}
 
 		private TeapplixOrder FillOrder( TeapplixRawDataRow row )

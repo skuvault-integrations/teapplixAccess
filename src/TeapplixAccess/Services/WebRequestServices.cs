@@ -76,16 +76,18 @@ namespace TeapplixAccess.Services
 			{
 				try
 				{
-					var stream = response.GetResponseStream();
-					using( var memStream = new MemoryStream() )
+					using( var stream = response.GetResponseStream() )
 					{
-						if( stream != null )
-							await stream.CopyToAsync( memStream, 0x100 );
+						using( var memStream = new MemoryStream() )
+						{
+							if( stream != null )
+								await stream.CopyToAsync( memStream, 0x100 );
 
-						LogServices.Logger.LogStream( "response", this._credentials.AccountName, memStream );
+							LogServices.Logger.LogStream( "response", this._credentials.AccountName, memStream );
 
-						var parser = new TeapplixUploadResponseParser();
-						result = parser.Parse( memStream );
+							var parser = new TeapplixUploadResponseParser();
+							result = parser.Parse( memStream );
+						}
 					}
 				}
 				catch( WebException ex )
@@ -106,26 +108,22 @@ namespace TeapplixAccess.Services
 				var parser = new TeapplixExportFileParser();
 				return parser.Parse( memoryStream );
 			}
-			catch
+			catch( Exception exc )
 			{
-				this.LogParseReportError( memoryStream );
+				this.LogParseReportError( memoryStream, exc );
 				throw;
 			}
 		}
 
 		#region logging
-		private void LogParseReportError( MemoryStream stream )
+		private void LogParseReportError( MemoryStream stream, Exception exc )
 		{
 			string rawTeapplixExport;
 			using( var rawStream = new MemoryStream( stream.ToArray() ) )
-			{
-				using( var reader = new StreamReader( rawStream ) )
-				{
-					rawTeapplixExport = reader.ReadToEnd();
-				}
-			}
+			using( var reader = new StreamReader( rawStream ) )
+				rawTeapplixExport = reader.ReadToEnd();
 
-			LogServices.Logger.Error( "Failed to parse file for account '{0}':\n\r{1}", this._credentials.AccountName, rawTeapplixExport );
+			LogServices.Logger.Error( exc, "Failed to parse file for account '{0}':\n\r{1}", this._credentials.AccountName, rawTeapplixExport );
 		}
 
 		private void LogUploadHttpError( string status )
