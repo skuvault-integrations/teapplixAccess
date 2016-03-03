@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using LINQtoCSV;
+using LumenWorks.Framework.IO.Csv;
 using TeapplixAccess.Models.File;
 
 namespace TeapplixAccess.Services
@@ -12,127 +12,112 @@ namespace TeapplixAccess.Services
 	{
 		public IList< TeapplixOrder > Parse( Stream source )
 		{
-			var orders = new List< TeapplixOrder >();
-			var cc = new CsvContext();
-
 			var reader = new StreamReader( source );
-			orders.AddRange( cc.Read< TeapplixRawDataRow >( reader, new CsvFileDescription { FirstLineHasColumnNames = true } ).Select( this.FillOrder ) );
+			var csvReader = new CsvReader( reader, true ) { MissingFieldAction = MissingFieldAction.ReplaceByEmpty, DefaultHeaderName = "empty_header", SupportsMultiline = true };
+			var orders = this.FillOrders( csvReader );
+
 			return orders;
 		}
 
-		private TeapplixOrder FillOrder( TeapplixRawDataRow row )
+		private List< TeapplixOrder > FillOrders( CsvReader csvReader )
 		{
-			var order = new TeapplixOrder();
-
-			order.OrderSource = row[ 0 ].Value ?? string.Empty;
-			order.AccountId = row[ 1 ].Value ?? string.Empty;
-			order.TnxId = row[ 2 ].Value ?? string.Empty;
-			order.TnxId2 = row[ 3 ].Value ?? string.Empty;
-			order.Date = string.IsNullOrEmpty( row[ 4 ].Value ) ? DateTime.MinValue : DateTime.Parse( row[ 4 ].Value, CultureInfo.InvariantCulture );
-			order.PaymentType = row[ 5 ].Value ?? string.Empty;
-			order.PaymentAuthInfo = row[ 6 ].Value ?? string.Empty;
-			order.FirstName = row[ 7 ].Value ?? string.Empty;
-			order.LastName = row[ 8 ].Value ?? string.Empty;
-			order.Email = row[ 9 ].Value ?? string.Empty;
-			order.Phone = row[ 10 ].Value ?? string.Empty;
-			order.Country = row[ 11 ].Value ?? string.Empty;
-			order.State = row[ 12 ].Value ?? string.Empty;
-			order.AddressZip = row[ 13 ].Value ?? string.Empty;
-			order.City = row[ 14 ].Value ?? string.Empty;
-			order.Address1 = row[ 15 ].Value ?? string.Empty;
-			order.Address2 = row[ 16 ].Value ?? string.Empty;
-			order.Tax = row[ 19 ].Value ?? string.Empty;
-			order.Discount = row[ 20 ].Value ?? string.Empty;
-			order.Fee = row[ 21 ].Value ?? string.Empty;
-			order.Carrier = row[ 23 ].Value ?? string.Empty;
-			order.Class = row[ 24 ].Value ?? string.Empty;
-			order.Weight = row[ 25 ].Value ?? string.Empty;
-			order.Tracking = row[ 26 ].Value ?? string.Empty;
-			order.Postage = row[ 27 ].Value ?? string.Empty;
-			order.PostageAccount = row[ 28 ].Value ?? string.Empty;
-			order.QueueId = row[ 29 ].Value ?? string.Empty;
-			order.ItemsCount = this.GetItemsCount( row[ 30 ].Value );
-			if( order.ItemsCount > 1000 )
-				throw new Exception( "Exceeded the maximum limit of items" );
-
-			decimal total;
-			if( !decimal.TryParse( row[ 17 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out total ) )
-				order.Total = 0m;
-
-			decimal shipping;
-			if( !decimal.TryParse( row[ 18 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out shipping ) )
-				order.Shipping = 0m;
-
-			DateTime shipDate;
-			if( DateTime.TryParse( row[ 22 ].Value, out shipDate ) )
-				order.ShipDate = shipDate;
-
-			var items = new List< TeapplixItem >();
-			for( var i = 0; i < order.ItemsCount; i++ )
+			var result = new List< TeapplixOrder >();
+			while( csvReader.ReadNextRecord() )
 			{
-				var item = this.LoadItem( row, i );
-				items.Add( item );
+				if( this.IsEmptyLine( csvReader ) )
+					continue;
+
+				var order = new TeapplixOrder();
+				order.OrderSource = this.GetValue( csvReader, "order_source" );
+				order.AccountId = this.GetValue( csvReader, "account" );
+				order.TnxId = this.GetValue( csvReader, "txn_id" );
+				order.TnxId2 = this.GetValue( csvReader, "txn_id2" );
+				order.PaymentType = this.GetValue( csvReader, "payment_type" );
+				order.PaymentAuthInfo = this.GetValue( csvReader, "payment_auth_info" );
+				order.FirstName = this.GetValue( csvReader, "first_name" );
+				order.LastName = this.GetValue( csvReader, "last_name" );
+				order.Email = this.GetValue( csvReader, "payer_email" );
+				order.Phone = this.GetValue( csvReader, "contact_phone" );
+				order.Country = this.GetValue( csvReader, "address_country" );
+				order.State = this.GetValue( csvReader, "address_state" );
+				order.AddressZip = this.GetValue( csvReader, "address_zip" );
+				order.City = this.GetValue( csvReader, "address_city" );
+				order.Address1 = this.GetValue( csvReader, "address_street" );
+				order.Address2 = this.GetValue( csvReader, "address_street2" );
+				order.Total = this.GetDecimal( this.GetValue( csvReader, "total" ) );
+				order.Shipping = this.GetDecimal( this.GetValue( csvReader, "shipping" ) );
+				order.Tax = this.GetValue( csvReader, "tax" );
+				order.Discount = this.GetValue( csvReader, "discount" );
+				order.Fee = this.GetValue( csvReader, "fee" );
+				order.Carrier = this.GetValue( csvReader, "carrier" );
+				order.Class = this.GetValue( csvReader, "method" );
+				order.Weight = this.GetValue( csvReader, "weight" );
+				order.Tracking = this.GetValue( csvReader, "tracking" );
+				order.Postage = this.GetValue( csvReader, "postage" );
+				order.PostageAccount = this.GetValue( csvReader, "postage_account" );
+				order.QueueId = this.GetValue( csvReader, "queue_id" );
+				order.ItemsCount = this.GetInt( this.GetValue( csvReader, "num_order_lines" ), 1 );
+
+				var dateStr = this.GetValue( csvReader, "date" );
+				order.Date = string.IsNullOrEmpty( dateStr ) ? DateTime.MinValue : DateTime.Parse( dateStr, CultureInfo.InvariantCulture );
+
+				DateTime shipDate;
+				if( DateTime.TryParse( this.GetValue( csvReader, "ship_date" ), out shipDate ) )
+					order.ShipDate = shipDate;
+
+				var startIndex = csvReader.GetFieldIndex( "items" );
+				var count = csvReader.FieldCount;
+				var fields = new string[ count ];
+				csvReader.CopyCurrentRecordTo( fields );
+
+				order.Items = new List< TeapplixItem >();
+				for( var i = 0; i < order.ItemsCount; i++ )
+				{
+					var item = this.FillItem( csvReader, startIndex, i );
+					order.Items.Add( item );
+				}
+
+				result.Add( order );
 			}
-
-			order.Total = total;
-			order.Shipping = shipping;
-			order.Items = items;
-
-			return order;
+			return result;
 		}
 
-		private TeapplixItem LoadItem( TeapplixRawDataRow row, int itemNumber )
+		private TeapplixItem FillItem( CsvReader csvReader, int startIndex, int itemNumber )
 		{
-			var startColumn = 31 + 4 * itemNumber;
+			var startColumn = startIndex + 4 * itemNumber;
 
 			var item = new TeapplixItem
 			{
-				Descrption = this.GetItemDescription( row, startColumn ),
-				Quantity = this.GetItemQuantity( row, startColumn ),
-				Sku = this.GetItemSku( row, startColumn ),
-				Subtotal = this.GetItemSubtotal( row, startColumn )
+				Descrption = csvReader[ startColumn ],
+				Quantity = this.GetInt( csvReader[ startColumn + 1 ] ),
+				Sku = csvReader[ startColumn + 2 ],
+				Subtotal = this.GetDecimal( csvReader[ startColumn + 3 ] )
 			};
 			return item;
 		}
 
-		private string GetItemDescription( TeapplixRawDataRow row, int startColumn )
+		public int GetInt( string str, int defaultValue = 0 )
 		{
-			var description = string.Empty;
-			if( row.Count > startColumn )
-				description = row[ startColumn ].Value;
-			return description;
+			int value;
+			return int.TryParse( str, out value ) ? value : defaultValue;
 		}
 
-		private int GetItemQuantity( TeapplixRawDataRow row, int startColumn )
+		public decimal GetDecimal( string str, decimal defaultValue = 0m )
 		{
-			int quantity;
-			if( ( row.Count <= startColumn + 1 ) || !int.TryParse( row[ startColumn + 1 ].Value, out quantity ) )
-				quantity = 0;
-			return quantity;
+			decimal value;
+			return decimal.TryParse( str, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out value ) ? value : defaultValue;
 		}
 
-		private string GetItemSku( TeapplixRawDataRow row, int startColumn )
+		public string GetValue( CsvReader csvReader, string columnName )
 		{
-			var sku = string.Empty;
-			if( row.Count > startColumn + 2 )
-				sku = row[ startColumn + 2 ].Value;
-			return sku;
+			return csvReader[ columnName ];
 		}
 
-		private decimal GetItemSubtotal( TeapplixRawDataRow row, int startColumn )
+		protected bool IsEmptyLine( CsvReader csvReader )
 		{
-			decimal subtotal;
-			if( ( row.Count <= startColumn + 3 ) || !decimal.TryParse( row[ startColumn + 3 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out subtotal ) )
-				subtotal = 0m;
-			return subtotal;
-		}
-
-		private int GetItemsCount( string value )
-		{
-			int count;
-			if( int.TryParse( value, out count ) )
-				return count;
-			return 1;
+			var fields = new string[ csvReader.FieldCount ];
+			csvReader.CopyCurrentRecordTo( fields );
+			return fields.All( string.IsNullOrEmpty );
 		}
 	}
 }
