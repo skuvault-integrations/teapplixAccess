@@ -3,66 +3,39 @@ using System.Collections.Generic;
 
 namespace TeapplixAccess.Models.File
 {
-	public sealed class TeapplixOrder : IEquatable< TeapplixOrder >
+	public sealed class TeapplixOrder: IEquatable< TeapplixOrder >
 	{
 		public string OrderSource;
-
 		public string AccountId;
-
 		public string TnxId;
-
 		public string TnxId2;
-
 		public DateTime Date;
-
 		public string PaymentType;
-
 		public string PaymentAuthInfo;
-
 		public string FirstName;
-
 		public string LastName;
-
 		public string Email;
-
 		public string Phone;
-
 		public string Country;
-
 		public string State;
-
 		public string AddressZip;
-
 		public string City;
-
 		public string Address1;
-
 		public string Address2;
-
 		public decimal Total;
-
 		public decimal Shipping;
-
 		public string Tax;
-
 		public string Discount;
-
 		public string Fee;
-
 		public DateTime? ShipDate;
-
 		public string Carrier;
-
 		public string Class;
-
+		public string Weight;
 		public string Tracking;
-
 		public string Postage;
-
 		public string PostageAccount;
-
+		public string QueueId;
 		public int ItemsCount;
-
 		public List< TeapplixItem > Items;
 
 		public bool IsShipped

@@ -46,10 +46,14 @@ namespace TeapplixAccess.Services
 			order.Fee = row[ 21 ].Value ?? string.Empty;
 			order.Carrier = row[ 23 ].Value ?? string.Empty;
 			order.Class = row[ 24 ].Value ?? string.Empty;
-			order.Tracking = row[ 25 ].Value ?? string.Empty;
-			order.Postage = row[ 26 ].Value ?? string.Empty;
-			order.PostageAccount = row[ 27 ].Value ?? string.Empty;
-			order.ItemsCount = this.GetItemsCount( row[ 28 ].Value );
+			order.Weight = row[ 25 ].Value ?? string.Empty;
+			order.Tracking = row[ 26 ].Value ?? string.Empty;
+			order.Postage = row[ 27 ].Value ?? string.Empty;
+			order.PostageAccount = row[ 28 ].Value ?? string.Empty;
+			order.QueueId = row[ 29 ].Value ?? string.Empty;
+			order.ItemsCount = this.GetItemsCount( row[ 30 ].Value );
+			if( order.ItemsCount > 1000 )
+				throw new Exception( "Exceeded the maximum limit of items" );
 
 			decimal total;
 			if( !decimal.TryParse( row[ 17 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out total ) )
@@ -79,7 +83,7 @@ namespace TeapplixAccess.Services
 
 		private TeapplixItem LoadItem( TeapplixRawDataRow row, int itemNumber )
 		{
-			var startColumn = 29 + 4 * itemNumber;
+			var startColumn = 31 + 4 * itemNumber;
 
 			var item = new TeapplixItem
 			{
