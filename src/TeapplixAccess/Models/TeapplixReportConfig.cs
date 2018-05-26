@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Net;
 using CuttingEdge.Conditions;
 
 namespace TeapplixAccess.Models
@@ -47,6 +48,16 @@ namespace TeapplixAccess.Models
 
 			return uri;
 		}
+		
+		public Uri GetUrlForGetOrdersV2()
+		{
+			var uri = new Uri( string.Format( "https://api.teapplix.com/api2/OrderNotification?{0}",
+				this.GetReportSubactionDatesV2() ) );
+
+			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+			return uri;
+		}
 
 		private string GetReportSubactionDates()
 		{
@@ -58,6 +69,18 @@ namespace TeapplixAccess.Models
 				result += string.Concat( "&ship_date_s=", this.ShippedOrdersStartUtc.Value.ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ), "&ship_date_e=", this.ShippedOrdersEndUtc.Value.ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ) );
 
 			return result;
+		}
+
+		private string GetReportSubactionDatesV2()
+		{
+			var result = string.Empty;
+
+			if( this.PaidOrdersStartUtc.HasValue && this.PaidOrdersEndUtc.HasValue )
+				result += string.Concat( "&PaymentDateStart=", this.PaidOrdersStartUtc.Value.ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ), "&PaymentDateEnd=", this.PaidOrdersEndUtc.Value.ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ) );
+			if( this.ShippedOrdersStartUtc.HasValue && this.ShippedOrdersEndUtc.HasValue )
+				result += string.Concat( "&ShipDateStart=", this.ShippedOrdersStartUtc.Value.ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ), "&ShipDateEnd=", this.ShippedOrdersEndUtc.Value.ToString( "yyyy/MM/dd", CultureInfo.InvariantCulture ) );
+
+			return result.Remove( 0, 1 );
 		}
 
 	}

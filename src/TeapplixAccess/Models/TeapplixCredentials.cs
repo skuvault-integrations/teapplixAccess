@@ -8,6 +8,8 @@ namespace TeapplixAccess.Models
 		public string UserName { get; private set; }
 		public string Password { get; private set; }
 
+		public string ApiKey{ get; private set; }
+
 		public TeapplixCredentials( string accountName, string userName, string password )
 		{
 			Condition.Requires( accountName, "accountName" ).IsNotNullOrEmpty();
@@ -17,6 +19,13 @@ namespace TeapplixAccess.Models
 			this.AccountName = accountName;
 			this.UserName = userName;
 			this.Password = password;
+		}
+
+		public TeapplixCredentials( string apiKey )
+		{
+			Condition.Requires( apiKey, "apiKey" ).IsNotNullOrEmpty();
+
+			this.ApiKey = apiKey;
 		}
 	}
 }

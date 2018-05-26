@@ -17,18 +17,18 @@ namespace TeapplixAccessTests.Report
 		[ SetUp ]
 		public void Init()
 		{
-			const string credentialsFilePath = @"..\..\Files\teapplix_test_credentials.csv";
+			//const string credentialsFilePath = @"..\..\Files\teapplix_test_credentials.csv";
 
-			var cc = new CsvContext();
-			this.Credentials = cc.Read< TestCredentials >( credentialsFilePath, new CsvFileDescription { FirstLineHasColumnNames = true } ).FirstOrDefault();
+			//var cc = new CsvContext();
+			//this.Credentials = cc.Read< TestCredentials >( credentialsFilePath, new CsvFileDescription { FirstLineHasColumnNames = true } ).FirstOrDefault();
 		}
 
 		[ Test ]
 		public void Report_CreatedOrdersDownloaded()
 		{
-			var service = this.TeapplixFactory.CreateService( new TeapplixCredentials( this.Credentials.AccountName, this.Credentials.Login, this.Credentials.Password ) );
-			var report = service.GetCustomerReport( new TeapplixReportConfig( TeapplixReportSubaction.CustomerRunReport, new DateTime( 2010, 1, 22 ), new DateTime( 2014,5,9 ),
-				null, null ) );
+			//var service = this.TeapplixFactory.CreateService( new TeapplixCredentials( "ffbe8-bc472-dc876-2a375-7451b-075a4-10a1" ) );
+			var service = this.TeapplixFactory.CreateService( new TeapplixCredentials( "agileharbor", "slav@agileharbor.com", "6eV7B6x6HWAR1qq" ) );
+			var report = service.GetCustomerReport( new TeapplixReportConfig( TeapplixReportSubaction.CustomerRunReport, new DateTime( 2018, 5, 1 ), new DateTime( 2018, 5, 27 ), null, null ) );
 
 			var listResult = report.ToList();
 			listResult[ 0 ].TnxId.Should().Be( "51953672" );

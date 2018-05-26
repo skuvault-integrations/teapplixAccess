@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Script.Serialization;
 using CuttingEdge.Conditions;
 using LINQtoCSV;
 using TeapplixAccess.Misc;
@@ -16,7 +19,10 @@ namespace TeapplixAccess
 {
 	public sealed class TeapplixService: ITeapplixService
 	{
+		private readonly bool _useV2;
 		private readonly WebRequestServices _services;
+		private readonly HttpClient _httpClient;
+
 		private readonly TeapplixCredentials _credentials;
 		private string Boundary;
 		private byte[] BoundaryBytes;
@@ -28,14 +34,28 @@ namespace TeapplixAccess
 		{
 			Condition.Requires( credentials, "credentials" ).IsNotNull();
 
-			this._services = new WebRequestServices( credentials );
-			this._credentials = credentials;
-			this.InitUploadElements();
+			if( string.IsNullOrEmpty( credentials.ApiKey ) )
+			{
+				this._useV2 = false;
+				this._services = new WebRequestServices( credentials );
+				this._credentials = credentials;
+				this.InitUploadElements();
+			}
+			else
+			{
+				this._useV2 = true;
+				this._credentials = credentials;
+				this._httpClient = new HttpClient();
+				this._httpClient.DefaultRequestHeaders.Add( "APIToken", this._credentials.ApiKey );
+			}
 		}
 
 		#region Upload Inventory
 		public IEnumerable< TeapplixInventoryUploadResponse > InventoryUpload( IEnumerable< TeapplixUploadItem > uploadItems )
 		{
+			if( this._useV2 )
+				return this.InventoryUploadV2Async( uploadItems ).Result;
+
 			IEnumerable< TeapplixInventoryUploadResponse > uploadResult;
 
 			using( var ms = new MemoryStream() )
@@ -50,6 +70,9 @@ namespace TeapplixAccess
 
 		public async Task< IEnumerable< TeapplixInventoryUploadResponse > > InventoryUploadAsync( IEnumerable< TeapplixUploadItem > uploadItems )
 		{
+			if( this._useV2 )
+				return await this.InventoryUploadV2Async( uploadItems );
+
 			IEnumerable< TeapplixInventoryUploadResponse > uploadResult;
 
 			using( var ms = new MemoryStream() )
@@ -60,6 +83,26 @@ namespace TeapplixAccess
 			}
 
 			return uploadResult;
+		}
+
+		private async Task< IEnumerable< TeapplixInventoryUploadResponse > > InventoryUploadV2Async( IEnumerable< TeapplixUploadItem > uploadItems )
+		{
+			var requestUri = new Uri( "https://api.teapplix.com/api2/ProductQuantity" );
+			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+			var jss = new JavaScriptSerializer();
+			var jsonContent = jss.Serialize( TeapplixUploadItemV2Request.From( uploadItems.ToList() ) );
+			var content = new StringContent( jsonContent, Encoding.UTF8, "application/json" );
+
+			var response = await this._httpClient.PostAsync( requestUri, content );
+			response.EnsureSuccessStatusCode();
+
+			var json = await response.Content.ReadAsStringAsync();
+
+			var responseObj = jss.Deserialize< TeapplixInventoryUploadV2Response >( json );
+			var responseAsV1 = responseObj.To();
+
+			return responseAsV1;
 		}
 
 		private async Task< IEnumerable< TeapplixInventoryUploadResponse > > UploadAsync( TeapplixUploadConfig config, Stream file )
@@ -124,8 +167,11 @@ namespace TeapplixAccess
 		#region Customer Report (Orders)
 		public IEnumerable< TeapplixOrder > GetCustomerReport( TeapplixReportConfig config )
 		{
-			var reequest = this._services.CreateServiceGetRequest( config.GetServiceUrl( this._credentials ) );
+			if( this._useV2 )
+				return this.GetCustomerReportV2Async( config ).Result;
 
+			var reequest = this._services.CreateServiceGetRequest( config.GetServiceUrl( this._credentials ) );
+			
 			using( var response = reequest.GetResponse() )
 			using( var responseStream = response.GetResponseStream() )
 			{
@@ -136,7 +182,7 @@ namespace TeapplixAccess
 				}
 
 				IEnumerable< TeapplixOrder > orders;
-				using(var memStream = new MemoryStream() )
+				using( var memStream = new MemoryStream() )
 				{
 					responseStream.CopyTo( memStream, 0x1000 );
 
@@ -150,6 +196,9 @@ namespace TeapplixAccess
 
 		public async Task< IEnumerable< TeapplixOrder > > GetCustomerReportAsync( TeapplixReportConfig config )
 		{
+			if( this._useV2 )
+				return this.GetCustomerReportV2Async( config ).Result;
+
 			var tokenSource = new CancellationTokenSource();
 			var token = tokenSource.Token;
 			var reequest = this._services.CreateServiceGetRequest( config.GetServiceUrl( this._credentials ) );
@@ -172,6 +221,22 @@ namespace TeapplixAccess
 					return this._services.GetParsedOrders( memStream );
 				}
 			}
+		}
+
+		private async Task< IEnumerable< TeapplixOrder > > GetCustomerReportV2Async( TeapplixReportConfig config )
+		{
+			var requestUri = config.GetUrlForGetOrdersV2();
+
+			var response = await this._httpClient.GetAsync( requestUri );
+			response.EnsureSuccessStatusCode();
+
+			var json = await response.Content.ReadAsStringAsync();
+
+			var jss = new JavaScriptSerializer();
+			var orders = jss.Deserialize< TeapplixOrderV2Array >( json );
+			var ordersAsV1 = orders.Orders.Select( x => x.ToTeapplixOrder() ).ToList();
+
+			return ordersAsV1;
 		}
 		#endregion
 
