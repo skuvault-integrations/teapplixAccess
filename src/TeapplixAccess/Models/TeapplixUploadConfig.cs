@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using CuttingEdge.Conditions;
 
 namespace TeapplixAccess.Models
@@ -36,6 +37,8 @@ namespace TeapplixAccess.Models
 				credentials.Password,
 				this.Subaction,
 				this.GetOptionalUploadParameters() ) );
+
+			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
 			return uri;
 		}

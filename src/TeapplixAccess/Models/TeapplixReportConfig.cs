@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Net;
 using CuttingEdge.Conditions;
 
 namespace TeapplixAccess.Models
@@ -45,6 +46,8 @@ namespace TeapplixAccess.Models
 				this.Subaction.Subaction,
 				this.GetReportSubactionDates() ) );
 
+			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+			
 			return uri;
 		}
 
