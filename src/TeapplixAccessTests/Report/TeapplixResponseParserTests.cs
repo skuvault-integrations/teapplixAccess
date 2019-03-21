@@ -42,8 +42,8 @@ namespace TeapplixAccessTests.Report
 			orders[ 1 ].Items[ 0 ].Sku.Should().Be( "Con Jewler" );
 			orders[ 2 ].Items[ 0 ].Subtotal.Should().Be( 28.99m );
 
-			orders[ 0 ].Items[ 0 ].Descrption.Should().Be( "Conair Hot Air Curling Combo, 1.5 Inch" );
-			orders[ 1 ].Items[ 0 ].Descrption.Should().Be( "Conair HJ3BC Quick Gems Hair Jeweler" );
+			orders[ 0 ].Items[ 0 ].Description.Should().Be( "Conair Hot Air Curling Combo, 1.5 Inch" );
+			orders[ 1 ].Items[ 0 ].Description.Should().Be( "Conair HJ3BC Quick Gems Hair Jeweler" );
 
 			orders[ 0 ].IsShipped.Should().BeTrue();
 			orders[ 1 ].IsShipped.Should().BeFalse();

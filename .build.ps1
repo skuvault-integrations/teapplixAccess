@@ -22,10 +22,31 @@ $src_dir = "$BuildRoot\src"
 $solution_file = "$src_dir\$($project_name).sln"
 	
 # Use MSBuild.
-use Framework\v4.0.30319 MSBuild
+function getMSBuildPath()
+{
+	$version = "15.0"
+	$vswhere = Join-Path $src_dir "packages\vswhere.2.6.7\tools\vswhere.exe"
+	if (-Not (Test-Path $vswhere)) {
+		throw "vswhere not found, ensure packages are restored. Expected path is: " + $vswhere
+	}
+
+	$vspath = & "$vswhere" -version "$version" -products * -requires Microsoft.Component.MSBuild -property installationPath
+	if ($vspath -Eq $null) {
+		throw "VS or VS Build Tools $version was not found"
+	}
+
+	$msbuildpath = Join-Path $vspath "MSBuild\$version\Bin\MSBuild.exe"
+	if (-Not (Test-Path $msbuildpath)) {
+		throw "MSBuild not found, expected path: " + $msbuildpath
+	}
+
+	return $msbuildpath
+}
+$msbuildPath = getMSBuildPath
+Write-Host Using MSBuild from $msbuildPath
 
 task Clean { 
-	exec { MSBuild "$solution_file" /t:Clean /p:Configuration=Release /p:Platform="Any CPU" /v:quiet } 
+	& $msbuildPath "$solution_file" /t:Clean /p:Configuration=Release /p:Platform="Any CPU" /v:quiet
 	Remove-Item -force -recurse $build_dir -ErrorAction SilentlyContinue | Out-Null
 }
 
@@ -36,7 +57,7 @@ task Init Clean, {
 }
 
 task Build {
-	exec { MSBuild "$solution_file" /t:Build /p:Configuration=Release /p:Platform="Any CPU" /v:minimal /p:OutDir="$build_artifacts_dir\" }
+	& $msbuildPath "$solution_file" /t:Build /p:Configuration=Release /p:Platform="Any CPU" /v:minimal /p:OutDir="$build_artifacts_dir\"
 }
 
 task Package  {

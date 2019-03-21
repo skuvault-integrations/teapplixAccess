@@ -31,7 +31,7 @@ namespace TeapplixAccess.Models
 		{
 			Condition.Requires( credentials, "credentials" ).IsNotNull();
 
-			var uri = new Uri( string.Format( "https://www.teapplix.com/h/{0}/ea/api.php?User={1}&Passwd={2}&Action=Upload&Subaction={3}{4}",
+			var uri = new Uri( string.Format( "https://app.teapplix.com/h/{0}/ea/api.php?User={1}&Passwd={2}&Action=Upload&Subaction={3}{4}",
 				credentials.AccountName,
 				credentials.UserName,
 				credentials.Password,

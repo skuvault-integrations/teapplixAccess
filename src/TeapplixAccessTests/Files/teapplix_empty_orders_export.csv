@@ -1,2 +1,2 @@
-order_source,account,txn_id,txn_id2,date,payment_type,payment_auth_info,first_name,last_name,payer_email,contact_phone,address_country,address_state,address_zip,address_city,address_street,address_street2,total,shipping,tax,discount,fee,ship_date,carrier,method,tracking,postage,postage_account,num_order_lines,items,qtys,skus,subtotals
+order_source,account,txn_id,txn_id2,date,payment_status,payment_type,payment_auth_info,first_name,last_name,payer_email,contact_phone,address_country,address_state,address_zip,address_city,address_street,address_street2,currency,total,shipping,tax,discount,fee,ship_date,carrier,method,weight,tracking,postage,postage_account,queue_id,insurance,insurance_value,insurance_fee,num_order_lines,items,qtys,skus,subtotals
 

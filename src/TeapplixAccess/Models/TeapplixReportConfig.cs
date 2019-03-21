@@ -39,8 +39,9 @@ namespace TeapplixAccess.Models
 		{
 			Condition.Requires( credentials, "credentials" ).IsNotNull();
 
-			var uri = new Uri( string.Format( "https://www.teapplix.com/h/{0}/ea/admin.php?User={1}&Passwd={2}&Action=Report&Subaction={3}{4}",
-				credentials.AccountName,
+			var uri = new Uri( string.Format( "https://app.teapplix.com/h/{0}/ea/admin.php?User={1}&Passwd={2}&Action=Report&Subaction={3}{4}",
+				// the Teapplix engineer (Evgeniy Bogdanov) states and experiment confirms that account name in url has to be in lower case 
+				credentials.AccountName.ToLowerInvariant(),
 				credentials.UserName,
 				credentials.Password,
 				this.Subaction.Subaction,

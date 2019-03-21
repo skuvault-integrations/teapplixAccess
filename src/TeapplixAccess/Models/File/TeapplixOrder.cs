@@ -10,6 +10,7 @@ namespace TeapplixAccess.Models.File
 		public string TnxId;
 		public string TnxId2;
 		public DateTime Date;
+		public string PaymentStatus;
 		public string PaymentType;
 		public string PaymentAuthInfo;
 		public string FirstName;
@@ -22,8 +23,9 @@ namespace TeapplixAccess.Models.File
 		public string City;
 		public string Address1;
 		public string Address2;
+		public string Currency;
 		public decimal Total;
-		public decimal Shipping;
+		public decimal? Shipping;
 		public string Tax;
 		public string Discount;
 		public string Fee;
@@ -35,6 +37,9 @@ namespace TeapplixAccess.Models.File
 		public string Postage;
 		public string PostageAccount;
 		public string QueueId;
+		public string Insurance;
+		public string InsuranceValue;
+		public string InsuranceFee;
 		public int ItemsCount;
 		public List< TeapplixItem > Items;
 
