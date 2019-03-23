@@ -80,18 +80,19 @@ namespace TeapplixAccess.Services
 			
 			// number of items always precedes the cells with the items info
 			int itemsStartColumnIndex = columnIndexByHeader[ "num_order_lines" ] + 1;
-			if ( row.Count != itemsStartColumnIndex + order.ItemsCount * 4 )
+			var totalColumnsCount = itemsStartColumnIndex + order.ItemsCount * 4;
+			if ( row.Count != totalColumnsCount )
 				throw new Exception( "Number of columns in a row does not match specified items count" );
 
 			order.Items = new List< TeapplixItem >();
-			for( var i = 0; i < order.ItemsCount; i++ )
+			for( var i = itemsStartColumnIndex; i < totalColumnsCount; i += 4 )
 			{
 				var item = new TeapplixItem
 				{
-					Description = row[ itemsStartColumnIndex + i * 4 ].Value ?? string.Empty,
-					Quantity = int.TryParse( row[ itemsStartColumnIndex + i * 4 + 1 ].Value, out var quantity ) ? quantity : 0,
-					Sku = row[ itemsStartColumnIndex + i * 4 + 2 ].Value,
-					Subtotal = decimal.TryParse( row[ itemsStartColumnIndex + i * 4 + 3 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var subtotal )
+					Description = row[ i ].Value ?? string.Empty,
+					Quantity = int.TryParse( row[ i + 1 ].Value, out var quantity ) ? quantity : 0,
+					Sku = row[ i + 2 ].Value,
+					Subtotal = decimal.TryParse( row[ i + 3 ].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var subtotal )
 						? subtotal
 						: 0m
 				};
