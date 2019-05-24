@@ -76,6 +76,7 @@
     </Compile>
     <Compile Include="Report\TeapplixReportTests.cs" />
     <Compile Include="Report\TeapplixResponseParserTests.cs" />
+    <Compile Include="Services\ExportFileParserTest.cs" />
     <Compile Include="TestCredentials.cs" />
     <Compile Include="UploadInventory\TeapplixUploadInventoryTests.cs" />
   </ItemGroup>
