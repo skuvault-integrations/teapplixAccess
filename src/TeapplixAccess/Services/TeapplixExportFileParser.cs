@@ -33,15 +33,17 @@ namespace TeapplixAccess.Services
 
 		private TeapplixOrder FillOrder( TeapplixRawDataRow row, IDictionary<string, int> columnIndexByHeader )
 		{
-			row.SetColumnToIndexMapping(columnIndexByHeader);
+			row.SetColumnToIndexMapping( columnIndexByHeader );
 
+			var date = row.GetDate( "date" );
+			var total = row.GetDecimal( "total" );
 			var order = new TeapplixOrder
 			{
 				OrderSource =		row.GetString( "order_source" ),
 				AccountId =			row.GetString( "account" ),
 				TnxId =			row.GetString( "txn_id" ),
 				TnxId2 =			row.GetString( "txn_id2" ),
-				Date = 			row.GetDate( "date" ).GetValueOrDefault(),
+				Date = 			date.GetValueOrDefault(),
 				PaymentStatus =		row.GetString( "payment_status" ),
 				PaymentType =		row.GetString( "payment_type" ),
 				PaymentAuthInfo =		row.GetString( "payment_auth_info" ),
@@ -56,7 +58,7 @@ namespace TeapplixAccess.Services
 				Address1 =			row.GetString( "address_street" ),
 				Address2 =			row.GetString( "address_street2" ),
 				Currency =			row.GetString( "currency" ),
-				Total = 			row.GetDecimal( "total" ).GetValueOrDefault(),
+				Total = 			total.GetValueOrDefault(),
 				Shipping =			row.GetDecimal( "shipping" ),
 				Tax = 			row.GetString( "tax" ),
 				Discount = 			row.GetString( "discount" ),
@@ -74,6 +76,19 @@ namespace TeapplixAccess.Services
 				InsuranceFee =		row.GetString( "insurance_fee" ),
 				ItemsCount =		row.GetInt( "num_order_lines" )
 			};
+
+			if ( !date.HasValue )
+			{
+				LogServices.Logger.Error( "Order {0} for account {1} has missing order date", order.TnxId, order.AccountId );
+				throw new Exception( string.Format("Order {0} for account {1} has missing order date", order.TnxId, order.AccountId ) );
+			}
+			if ( !total.HasValue )
+			{
+				LogServices.Logger.Error( "Order {0} for account {1} has missing order total", order.TnxId, order.AccountId );
+				throw new Exception( string.Format( "Order {0} for account {1} has missing order total", order.TnxId, order.AccountId ) );
+			}
+
+
 			
 			if( order.ItemsCount > 1000 )
 				throw new Exception( "Exceeded the maximum limit of items" );
