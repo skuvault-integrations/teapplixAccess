@@ -33,6 +33,19 @@ namespace TeapplixAccess.Models.File
 			return decimal.TryParse( value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var result )
 				? result : ( decimal? ) null;
 		}
+
+		public int GetInt( string columnName )
+		{
+			var value = this.GetString( columnName );
+			if( int.TryParse( value, out int result ))
+			{
+				return result;
+			}
+			else
+			{
+				return 0;
+			}
+		}
 		
 		private IDictionary< string, int > columnIndexByHeader;
 	}
