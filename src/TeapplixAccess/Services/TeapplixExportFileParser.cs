@@ -25,13 +25,25 @@ namespace TeapplixAccess.Services
 						columnIndexByHeader = row.Where( i => i.Value != null ).Select( i => i.Value ).ToIndexDictionary();
 						return null;
 					}
-					return this.FillOrder( row, columnIndexByHeader );
+
+					TeapplixOrder order = null;
+					
+					try
+					{
+						order = this.ExtractOrder( row, columnIndexByHeader );
+					}
+					catch( Exception ex )
+					{
+						LogServices.Logger.Error( ex, "Order line has errors" );
+					}
+
+					return order;
 				})
 				.Where( o => o != null )
 				.ToList();
 		}
 
-		private TeapplixOrder FillOrder( TeapplixRawDataRow row, IDictionary<string, int> columnIndexByHeader )
+		private TeapplixOrder ExtractOrder( TeapplixRawDataRow row, IDictionary<string, int> columnIndexByHeader )
 		{
 			row.SetColumnToIndexMapping( columnIndexByHeader );
 
@@ -79,25 +91,27 @@ namespace TeapplixAccess.Services
 
 			if ( !date.HasValue )
 			{
-				LogServices.Logger.Error( "Order {0} for account {1} has missing order date", order.TnxId, order.AccountId );
 				throw new Exception( string.Format("Order {0} for account {1} has missing order date", order.TnxId, order.AccountId ) );
 			}
+
 			if ( !total.HasValue )
 			{
-				LogServices.Logger.Error( "Order {0} for account {1} has missing order total", order.TnxId, order.AccountId );
 				throw new Exception( string.Format( "Order {0} for account {1} has missing order total", order.TnxId, order.AccountId ) );
 			}
 
-
-			
 			if( order.ItemsCount > 1000 )
-				throw new Exception( "Exceeded the maximum limit of items" );
-			
+			{
+				throw new Exception( string.Format( "Order {0} for account {1}. Exceeded the maximum limit of items", order.TnxId, order.AccountId ) );
+			}
+	
 			// number of items always precedes the cells with the items info
 			int itemsStartColumnIndex = columnIndexByHeader[ "num_order_lines" ] + 1;
 			var totalColumnsCount = itemsStartColumnIndex + order.ItemsCount * 4;
+			
 			if ( row.Count != totalColumnsCount )
-				throw new Exception( "Number of columns in a row does not match specified items count" );
+			{
+				throw new Exception( string.Format( "Order {0} for account {1}. Number of columns in a row does not match specified items count", order.TnxId, order.AccountId ) );
+			}
 
 			order.Items = new List< TeapplixItem >();
 			for( var i = itemsStartColumnIndex; i < totalColumnsCount; i += 4 )

@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 [ assembly : ComVisible( false ) ]
 [ assembly : AssemblyProduct( "TeapplixAccess" ) ]
 [ assembly : AssemblyCompany( "Agile Harbor, LLC" ) ]
-[ assembly : AssemblyCopyright( "Copyright (C) 2013 Agile Harbor, LLC" ) ]
+[ assembly : AssemblyCopyright( "Copyright (C) 2020 SkuVault Inc." ) ]
 [ assembly : AssemblyDescription( "Teapplix webservices API wrapper." ) ]
 [ assembly : AssemblyTrademark( "" ) ]
 [ assembly : AssemblyCulture( "" ) ]
@@ -22,4 +22,4 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[ assembly : AssemblyVersion( "1.2.12.0" ) ]
+[ assembly : AssemblyVersion( "1.2.13.0" ) ]

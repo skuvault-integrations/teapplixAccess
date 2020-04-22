@@ -27,11 +27,10 @@ namespace TeapplixAccessTests.Report
 		public void Report_CreatedOrdersDownloaded()
 		{
 			var service = this.TeapplixFactory.CreateService( new TeapplixCredentials( this.Credentials.AccountName, this.Credentials.Login, this.Credentials.Password ) );
-			var report = service.GetCustomerReport( new TeapplixReportConfig( TeapplixReportSubaction.CustomerRunReport, new DateTime( 2010, 1, 22 ), new DateTime( 2014,5,9 ),
+			var report = service.GetCustomerReport( new TeapplixReportConfig( TeapplixReportSubaction.CustomerRunReport, new DateTime( 2020, 3, 22 ), new DateTime( 2020,4,22 ),
 				null, null ) );
 
-			var listResult = report.ToList();
-			listResult[ 0 ].TnxId.Should().Be( "51953672" );
+			report.Should().NotBeEmpty();
 		}
 
 		[ Test ]
